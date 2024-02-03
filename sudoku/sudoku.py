@@ -1,15 +1,15 @@
 import numpy as np
-from typing import Union
+from typing import Union, Tuple
 
 ROWS, COLUMNS = (9, 9)
 DIGITS = 10
 
 
-# return columns' lists of cells
-all_columns = [[(i, j) for j in range(9)] for i in range(9)]
-
 # same for rows
-all_rows = [[(i, j) for i in range(9)] for j in range(9)]
+all_rows = [[(i, j) for j in range(9)] for i in range(9)]
+
+# return columns' lists of cells
+all_columns = [[(i, j) for i in range(9)] for j in range(9)]
 
 # same for blocks
 # this list comprehension is unreadable, but quite cool!
@@ -117,12 +117,27 @@ class SudokuGrid:
         - None
         """
         grid = self.get_grid()
-        for row in range(grid.shape[0]):
-            for column in range(grid.shape[1]):
-                cell = grid[row][column]
+        rows, columns = grid.shape
+        for row in range(rows):
+            for column in range(columns):
+                cell = self.get_cell((row, column))
                 if cell == [0]:
                     candidates = list(range(1, DIGITS))
-                    grid[row][column] = np.array(candidates, dtype=np.uint8)
+                    self.set_cell((row, column), np.array(candidates, dtype=np.uint8))
+
+    def get_cell(self, position: Tuple[int, int]):
+        row, column = position
+        if row < 0 or column < 0:
+            raise IndexError("out of bounds for position ({},{})".format(row, column))
+
+        return self.get_grid()[row][column]
+
+    def set_cell(self, position: Tuple[int, int], new_value: np.ndarray) -> None:
+        row, column = position
+        if row < 0 or column < 0:
+            raise IndexError("out of bounds for position ({},{})".format(row, column))
+
+        self.get_grid()[row][column] = new_value
 
     def get_grid(self) -> np.ndarray:
         return self.__grid
@@ -168,21 +183,6 @@ class SudokuUtils:
     @staticmethod
     def is_valid_block():
         raise NotImplementedError()
-
-
-class LogicChecker:
-    @staticmethod
-    def simple_elemination(grid: SudokuGrid):
-        for index, cell in grid:
-            if len(cell) == 1:
-                continue
-            for candidate in cell:
-                if LogicChecker.candidate_in_houses(candidate, index):
-                    not NotImplementedError("todo remove candidate from array ")
-
-    @staticmethod
-    def candidate_in_houses(candidate, position):
-        print(position)
 
 
 class Sudoku:
@@ -241,8 +241,13 @@ class Sudoku:
         """
         self.__grid = SudokuGrid(grid_str)
 
-    def fill_cell(self) -> None:
-        raise NotImplementedError()
+    def simple_elemination(grid: SudokuGrid):
+        for index, cell in grid:
+            if len(cell) == 1:
+                continue
+            for candidate in cell:
+                if LogicChecker.candidate_in_houses(candidate, index):
+                    not NotImplementedError("todo remove candidate from array ")
 
     def get_sudoku_grid(self) -> SudokuGrid:
         """
@@ -264,7 +269,14 @@ class Sudoku:
 
 
 if __name__ == "__main__":
-    s = Sudoku(
+    s = SudokuGrid(
         "123456789123456789123456789123456789123456789123456789123456789123456789123456723"
     )
     print(s)
+
+    # for row in all_rows:
+    #     print(row)
+    #     for cell in row:
+    #         print("{},{}".format((cell), s.get_cell(cell)))
+    new_value = np.array([1, 2, 3], dtype=np.ndarray)
+    s.set_cell((1, 0), new_value)
