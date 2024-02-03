@@ -1,5 +1,12 @@
 import pytest
-from sudoku.sudoku import SudokuGrid, InvalidSudokuInput
+import re
+from sudoku.sudoku import (
+    SudokuGrid,
+    InvalidSudokuInput,
+    all_rows,
+    all_columns,
+    all_blocks,
+)
 import numpy as np
 
 ROWS, COLUMNS = 9, 9
@@ -128,5 +135,184 @@ def test_fill_in_candidates():
     ), "second element in the second row is 0 -> [0,...,9]"
 
 
-def test_future_implementations():
-    pass
+def test_all_rows():
+    assert all_rows[0] == [
+        (0, 0),
+        (0, 1),
+        (0, 2),
+        (0, 3),
+        (0, 4),
+        (0, 5),
+        (0, 6),
+        (0, 7),
+        (0, 8),
+    ], "the frist row should have row=0 and column=1-8"
+    assert all_rows[8] == [
+        (8, 0),
+        (8, 1),
+        (8, 2),
+        (8, 3),
+        (8, 4),
+        (8, 5),
+        (8, 6),
+        (8, 7),
+        (8, 8),
+    ], "the last row should have row=8 and column=1-8"
+
+
+def test_all_columns():
+    assert all_columns[0] == [
+        (0, 0),
+        (1, 0),
+        (2, 0),
+        (3, 0),
+        (4, 0),
+        (5, 0),
+        (6, 0),
+        (7, 0),
+        (8, 0),
+    ], "the frist column should have column=0 and row=1-8"
+    assert all_columns[8] == [
+        (0, 8),
+        (1, 8),
+        (2, 8),
+        (3, 8),
+        (4, 8),
+        (5, 8),
+        (6, 8),
+        (7, 8),
+        (8, 8),
+    ], "the last column should have column=8 and row=1-8"
+
+
+def test_all_blocks():
+    assert all_blocks[0] == [
+        (0, 0),
+        (0, 1),
+        (0, 2),
+        (1, 0),
+        (1, 1),
+        (1, 2),
+        (2, 0),
+        (2, 1),
+        (2, 2),
+    ], "the frist block should start with (0,0), goes to the left and after 3 elements to the next row"
+    assert all_blocks[8] == [
+        (6, 6),
+        (6, 7),
+        (6, 8),
+        (7, 6),
+        (7, 7),
+        (7, 8),
+        (8, 6),
+        (8, 7),
+        (8, 8),
+    ], "the last block should be the block on the bottom right"
+
+
+def test_set_cell():
+    grid = SudokuGrid()
+    new_value = np.array([1, 2, 3], dtype=np.ndarray)
+
+    assert grid.get_grid()[1][0] == [0]
+
+    grid.set_cell((1, 0), new_value)
+
+    assert grid.get_grid()[0][0] == [0] and grid.get_grid()[3][3] == [
+        0 and grid.get_grid()[8][8] == [0]
+    ], "The other cells should still be [0]"
+
+    assert np.array_equal(
+        grid.get_grid()[1][0], [1, 2, 3]
+    ), "The cell should be filled with the new array [1,2,3]"
+
+
+def test_set_cell_out_of_positive_bounds():
+    grid = SudokuGrid()
+    new_value = np.array([1, 2, 3], dtype=np.ndarray)
+
+    with pytest.raises(
+        IndexError, match="index 9 is out of bounds for axis 0 with size 9"
+    ):
+        grid.set_cell((9, 0), new_value)
+    with pytest.raises(
+        IndexError, match="index 9 is out of bounds for axis 0 with size 9"
+    ):
+        grid.set_cell((0, 9), new_value)
+    with pytest.raises(
+        IndexError, match="index 9 is out of bounds for axis 0 with size 9"
+    ):
+        grid.set_cell((9, 9), new_value)
+
+    for cell in grid.get_grid().all():
+        assert cell == [0], "All cells should still be filled with the initial [0]"
+
+
+def test_set_cell_out_of_negative_bounds():
+    grid = SudokuGrid()
+    new_value = np.array([1, 2, 3], dtype=np.ndarray)
+
+    with pytest.raises(
+        IndexError, match=re.escape("out of bounds for position (-1,0)")
+    ):
+        grid.set_cell((-1, 0), new_value)
+    with pytest.raises(
+        IndexError, match=re.escape("out of bounds for position (0,-1)")
+    ):
+        grid.set_cell((0, -1), new_value)
+    with pytest.raises(
+        IndexError, match=re.escape("out of bounds for position (-1,-1)")
+    ):
+        grid.set_cell((-1, -1), new_value)
+
+    for cell in grid.get_grid().all():
+        assert cell == [0], "All cells should still be filled with the initial [0]"
+
+
+def test_get_cell():
+    grid = SudokuGrid()
+    new_value = np.array([1, 2, 3], dtype=np.ndarray)
+    grid.set_cell((1, 0), new_value)
+
+    assert grid.get_cell((0, 0)) == [0] and grid.get_cell((3, 3)) == [
+        0 and grid.get_cell((8, 8)) == [0]
+    ], "The other cells should still be [0]"
+
+    assert np.array_equal(
+        grid.get_cell((1, 0)), [1, 2, 3]
+    ), "The cell should be filled with the new array [1,2,3]"
+
+
+def test_get_cell_out_of_positive_bounds():
+    grid = SudokuGrid()
+
+    with pytest.raises(
+        IndexError, match="index 9 is out of bounds for axis 0 with size 9"
+    ):
+        grid.get_cell((9, 0))
+    with pytest.raises(
+        IndexError, match="index 9 is out of bounds for axis 0 with size 9"
+    ):
+        grid.get_cell((0, 9))
+
+    with pytest.raises(
+        IndexError, match="index 9 is out of bounds for axis 0 with size 9"
+    ):
+        grid.get_cell((9, 9))
+
+
+def test_get_cell_out_of_negative_bounds():
+    grid = SudokuGrid()
+
+    with pytest.raises(
+        IndexError, match=re.escape("out of bounds for position (-1,0)")
+    ):
+        grid.get_cell((-1, 0))
+    with pytest.raises(
+        IndexError, match=re.escape("out of bounds for position (0,-1)")
+    ):
+        grid.get_cell((0, -1))
+    with pytest.raises(
+        IndexError, match=re.escape("out of bounds for position (-1,-1)")
+    ):
+        grid.get_cell((-1, -1))
