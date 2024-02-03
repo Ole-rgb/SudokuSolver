@@ -5,6 +5,22 @@ ROWS, COLUMNS = (9, 9)
 DIGITS = 10
 
 
+# return columns' lists of cells
+all_columns = [[(i, j) for j in range(9)] for i in range(9)]
+
+# same for rows
+all_rows = [[(i, j) for i in range(9)] for j in range(9)]
+
+# same for blocks
+# this list comprehension is unreadable, but quite cool!
+all_blocks = [
+    [((i // 3) * 3 + j // 3, (i % 3) * 3 + j % 3) for j in range(9)] for i in range(9)
+]
+
+# combine three
+all_houses = all_columns + all_rows + all_blocks
+
+
 class InvalidSudokuInput(Exception):
     pass
 
@@ -92,6 +108,21 @@ class SudokuGrid:
             )
 
         return grid
+
+    def fill_in_candidates(self) -> None:
+        """
+        Fills in candidate values for empty cells in the Sudoku grid.
+
+        Returns:
+        - None
+        """
+        grid = self.get_grid()
+        for row in range(grid.shape[0]):
+            for column in range(grid.shape[1]):
+                cell = grid[row][column]
+                if cell == [0]:
+                    candidates = list(range(1, DIGITS))
+                    grid[row][column] = np.array(candidates, dtype=np.uint8)
 
     def get_grid(self) -> np.ndarray:
         return self.__grid
@@ -213,21 +244,6 @@ class Sudoku:
     def fill_cell(self) -> None:
         raise NotImplementedError()
 
-    def fill_in_candidates(self) -> None:
-        """
-        Fills in candidate values for empty cells in the Sudoku grid.
-
-        Returns:
-        - None
-        """
-        grid = self.get_np_grid()
-        for row in range(grid.shape[0]):
-            for column in range(grid.shape[1]):
-                cell = grid[row][column]
-                if cell == [0]:
-                    candidates = list(range(1, DIGITS))
-                    grid[row][column] = np.array(candidates, dtype=np.uint8)
-
     def get_sudoku_grid(self) -> SudokuGrid:
         """
         Returns the SudokuGrid instance representing the Sudoku puzzle.
@@ -236,15 +252,6 @@ class Sudoku:
         - SudokuGrid: The SudokuGrid instance.
         """
         return self.__grid
-
-    def get_np_grid(self) -> np.ndarray:
-        """
-        Returns the NumPy array representation of the Sudoku grid.
-
-        Returns:
-        - np.ndarray: The NumPy array representing the Sudoku grid.
-        """
-        return self.get_sudoku_grid().get_grid()
 
     def __str__(self) -> str:
         """

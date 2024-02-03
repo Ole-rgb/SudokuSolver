@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sudoku import Sudoku
+from sudoku import SudokuGrid
 
 
 def display_sudoku(grid):
@@ -14,6 +14,7 @@ def display_sudoku(grid):
     for i in range(9):
         for j in range(9):
             if len(grid[i][j]) == 1 and grid[i][j] != 0:
+                # Displays fixed numbers
                 number = grid[i][j][0]
                 ax.text(
                     j,
@@ -25,14 +26,12 @@ def display_sudoku(grid):
                     color="black",
                 )
             elif len(grid[i][j]) > 1:
+                # Displays candidates
                 display_candidates = ""
-
                 for index, candidate in enumerate(grid[i][j]):
                     if index % 3 == 0:
                         display_candidates += "\n"
-
                     display_candidates += "{} ".format(candidate)
-
                 ax.text(
                     j,
                     i,
@@ -54,8 +53,9 @@ def display_sudoku(grid):
 
 
 if __name__ == "__main__":
-    sudoku = Sudoku(
+    # Example use
+    sudoku = SudokuGrid(
         "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
     )
     sudoku.fill_in_candidates()
-    display_sudoku(sudoku.get_np_grid())
+    display_sudoku(sudoku.get_grid())
