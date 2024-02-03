@@ -48,15 +48,15 @@ def test_parsed_sudoku_values_asc_in_row():
     assert len(sudoku) == ROWS * COLUMNS, "Sudoku field has 81 cells"
     assert (
         grid.get_grid()[0][0] == [1]
-        and grid.get_grid()[1][0] == [2]
-        and grid.get_grid()[2][0] == [3]
-        and grid.get_grid()[8][0] == [9]
+        and grid.get_grid()[0][1] == [2]
+        and grid.get_grid()[0][2] == [3]
+        and grid.get_grid()[0][8] == [9]
     ), "first row should have the values 1,2,...,9"
     assert (
         grid.get_grid()[0][0] == [1]
-        and grid.get_grid()[0][1] == [1]
-        and grid.get_grid()[0][2] == [1]
-        and grid.get_grid()[0][8] == [1]
+        and grid.get_grid()[1][0] == [1]
+        and grid.get_grid()[2][0] == [1]
+        and grid.get_grid()[8][0] == [1]
     ), "first column should have the value 1"
 
 

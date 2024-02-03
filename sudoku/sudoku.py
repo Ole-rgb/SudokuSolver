@@ -56,8 +56,6 @@ class SudokuGrid:
     def __parse_sudoku(self, grid, grid_str: str) -> np.ndarray:
         """
         Parse a string representing a Sudoku grid into a 2D NumPy array.
-        The string gets parsed so that the first number is placed in the left top corner
-        and the second number in placed in the first column second row.
 
         Parameters:
         - grid (np.ndarray): The 2D NumPy array to be filled with parsed values.
@@ -81,11 +79,13 @@ class SudokuGrid:
         try:
             for cell_char in grid_str:
                 grid[row][column] = np.array([int(cell_char)], dtype=np.uint8)
-                if row + 1 == ROWS:
-                    column += 1
-                    row = 0
-                else:
+
+                if column + 1 == COLUMNS:
                     row += 1
+                    column = 0
+                else:
+                    column += 1
+
         except ValueError:
             raise InvalidSudokuInput(
                 "Parsed sudoku contains character that is not a digit"
@@ -155,13 +155,71 @@ class LogicChecker:
 
 
 class Sudoku:
+    """
+    Sudoku class represents a Sudoku puzzle and provides methods for manipulation.
+
+    Attributes:
+    - __grid (SudokuGrid): An instance of SudokuGrid representing the Sudoku puzzle.
+
+    Methods:
+    - __init__(self, grid_str: Union[None, str] = None) -> None:
+        Constructor for the Sudoku class. Initializes the Sudoku grid.
+
+    - fill_cell(self) -> None:
+        Abstract method to be implemented by subclasses. Fills a cell in the Sudoku grid.
+
+    - fill_in_candidates(self) -> None:
+        Fills in candidate values for empty cells in the Sudoku grid.
+
+    - get_sudoku_grid(self) -> SudokuGrid:
+        Returns the SudokuGrid instance representing the Sudoku puzzle.
+
+    - get_np_grid(self) -> np.ndarray:
+        Returns the NumPy array representation of the Sudoku grid.
+
+    - __str__(self) -> str:
+        Returns a string representation of the Sudoku puzzle.
+
+    Example Usage:
+    >>> sudoku = Sudoku("530070000600195000098000060800060003400803001700020006060000280000419005000080079")
+    >>> sudoku.fill_in_candidates()
+    >>> print(sudoku)
+    5 3 0 | 0 7 0 | 0 0 0
+    6 0 0 | 1 9 5 | 0 0 0
+    0 9 8 | 0 0 0 | 0 6 0
+    ---------------------
+    8 0 0 | 0 6 0 | 0 0 3
+    4 0 0 | 8 0 3 | 0 0 1
+    7 0 0 | 0 2 0 | 0 0 6
+    ---------------------
+    0 6 0 | 0 0 0 | 2 8 0
+    0 0 0 | 4 1 9 | 0 0 5
+    0 0 0 | 0 8 0 | 0 7 9
+    """
+
     def __init__(self, grid_str: Union[None, str] = None) -> None:
+        """
+        Constructor for the Sudoku class.
+
+        Parameters:
+        - grid_str (Union[None, str]): A string containing digits representing the initial Sudoku grid.
+          If None, an empty Sudoku grid is created.
+
+        Returns:
+        - None
+        """
         self.__grid = SudokuGrid(grid_str)
 
     def fill_cell(self) -> None:
         raise NotImplementedError()
 
     def fill_in_candidates(self) -> None:
+        """
+        Fills in candidate values for empty cells in the Sudoku grid.
+
+        Returns:
+        - None
+        """
         grid = self.get_np_grid()
         for row in range(grid.shape[0]):
             for column in range(grid.shape[1]):
@@ -171,23 +229,35 @@ class Sudoku:
                     grid[row][column] = np.array(candidates, dtype=np.uint8)
 
     def get_sudoku_grid(self) -> SudokuGrid:
+        """
+        Returns the SudokuGrid instance representing the Sudoku puzzle.
+
+        Returns:
+        - SudokuGrid: The SudokuGrid instance.
+        """
         return self.__grid
 
     def get_np_grid(self) -> np.ndarray:
+        """
+        Returns the NumPy array representation of the Sudoku grid.
+
+        Returns:
+        - np.ndarray: The NumPy array representing the Sudoku grid.
+        """
         return self.get_sudoku_grid().get_grid()
 
     def __str__(self) -> str:
+        """
+        Returns a string representation of the Sudoku puzzle.
+
+        Returns:
+        - str: The string representation of the Sudoku puzzle.
+        """
         return self.get_np_grid().__str__()
 
 
 if __name__ == "__main__":
-    # Todo
-    # grid = SudokuGrid("")
-    # LogicChecker.simple_elemination()
-    grid_string = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
-
-    sudoku = Sudoku(grid_string)
-
-    print(sudoku)
-    sudoku.fill_in_candidates()
-    print(sudoku)
+    s = Sudoku(
+        "123456789123456789123456789123456789123456789123456789123456789123456789123456723"
+    )
+    print(s)

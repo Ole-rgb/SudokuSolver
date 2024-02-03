@@ -20,13 +20,13 @@ def test_fill_in_candidates():
         sudoku.get_np_grid()[0][0], np.array([5])
     ), "first element in the first row is 5"
     assert np.array_equal(
-        sudoku.get_np_grid()[1][0], np.array([3])
+        sudoku.get_np_grid()[0][1], np.array([3])
     ), "first entry in the second row is 3"
     assert np.array_equal(
-        sudoku.get_np_grid()[2][0], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        sudoku.get_np_grid()[0][2], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
     ), "first element in the third row is 0 -> [0,...,9]"
     assert np.array_equal(
-        sudoku.get_np_grid()[0][1], np.array([6])
+        sudoku.get_np_grid()[1][0], np.array([6])
     ), "second element in the first row is 6"
     assert np.array_equal(
         sudoku.get_np_grid()[1][1], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
