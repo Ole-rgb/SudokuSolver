@@ -103,7 +103,7 @@ def test_simple_elemination_two_numbers_different_value_different_block_row_colu
 
     assert (
         solver.get_sudoku_grid().get_cell((1, 1)) == 2
-    ), "fixed value 1 shouldnt be changed"
+    ), "fixed value 2 shouldnt be changed"
 
     for row, column in all_blocks[0]:
         if (row, column) == (0, 0) or (row, column) == (1, 1):
@@ -172,11 +172,11 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
     # fixed values
     assert (
         solver.get_sudoku_grid().get_cell((0, 0)) == 1
-    ), "fixed value 1 shouldnt be changed"
+    ), "fixed value 1 at location (3, 8) shouldnt be changed"
 
     assert (
         solver.get_sudoku_grid().get_cell((3, 8)) == 1
-    ), "fixed value 1 shouldnt be changed"
+    ), "fixed value 1 at location (3, 8) shouldnt be changed"
 
     for row, column in all_blocks[0]:
         if (row, column) == (0, 0):

@@ -262,18 +262,12 @@ def test_set_cell():
 def test_set_cell_out_of_positive_bounds():
     grid = SudokuGrid()
     new_value = np.array([1, 2, 3], dtype=np.ndarray)
-
-    with pytest.raises(
-        IndexError, match="index 9 is out of bounds for axis 0 with size 9"
-    ):
+    MSG = "index 9 is out of bounds for axis 0 with size 9"
+    with pytest.raises(IndexError, match=MSG):
         grid.set_cell((9, 0), new_value)
-    with pytest.raises(
-        IndexError, match="index 9 is out of bounds for axis 0 with size 9"
-    ):
+    with pytest.raises(IndexError, match=MSG):
         grid.set_cell((0, 9), new_value)
-    with pytest.raises(
-        IndexError, match="index 9 is out of bounds for axis 0 with size 9"
-    ):
+    with pytest.raises(IndexError, match=MSG):
         grid.set_cell((9, 9), new_value)
 
     for cell in grid.get_grid().all():
