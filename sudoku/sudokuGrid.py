@@ -128,9 +128,21 @@ class SudokuGrid:
 
     def __str__(self) -> str:
         """
-        Returns a string representation of the Sudoku grid.
+        Returns a formatted string representation of the Sudoku puzzle.
 
         Returns:
-        - str: A string representation of the Sudoku grid.
+        - str: The formatted string representation of the Sudoku puzzle.
         """
-        return self.__grid.__str__()
+        grid = self.get_grid()
+        rows, columns = grid.shape
+
+        result = ""
+        for i in range(rows):
+            if i % 3 == 0 and i != 0:
+                result += "-" * 21 + "\n"
+            for j in range(columns):
+                if j % 3 == 0 and j != 0:
+                    result += "| "
+                result += f"{grid[i, j]} "
+            result += "\n"
+        return result.strip()
