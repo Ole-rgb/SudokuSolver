@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sudoku import SudokuSolver
+from sudoku.sudokuSolver import SudokuSolver
 
 
 def display_sudoku(grid):
@@ -8,7 +8,7 @@ def display_sudoku(grid):
     Display the Sudoku grid as an image.
     """
 
-    fig, ax = plt.subplots(figsize=(6, 6))
+    _, ax = plt.subplots(figsize=(6, 6))
     ax.matshow(np.ones_like(np.zeros((9, 9))) * -1, cmap="Blues", vmin=-2, vmax=2)
 
     for i in range(9):

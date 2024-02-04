@@ -5,7 +5,6 @@ from sudoku.sudokuGrid import SudokuGrid
 ROWS, COLUMNS = (9, 9)
 DIGITS = 10
 
-
 # same for rows
 all_rows = [[(i, j) for j in range(9)] for i in range(9)]
 
@@ -160,7 +159,7 @@ if __name__ == "__main__":
     s = SudokuSolver(
         "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
     )
-    s.get_sudoku_grid().fill_in_candidates()
-    s.simple_elimination()
+    s.get_sudoku_grid()  # .fill_in_candidates()
+    # s.simple_elimination()
 
     print(s)
