@@ -1,7 +1,5 @@
 import pytest
-from sudoku.sudoku import (
-    SudokuGrid,
-    InvalidSudokuInput,
+from sudoku.sudokuSolver import (
     SudokuSolver,
     all_blocks,
     all_columns,

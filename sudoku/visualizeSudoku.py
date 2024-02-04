@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sudoku import SudokuGrid
+from sudoku import SudokuSolver
 
 
 def display_sudoku(grid):
@@ -53,9 +53,12 @@ def display_sudoku(grid):
 
 
 if __name__ == "__main__":
-    # Example use
-    sudoku = SudokuGrid(
-        "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
+
+    s = SudokuSolver(
+        "100000000000000000000000000000000001000000000000000000000000000000000000000000000"
     )
-    sudoku.fill_in_candidates()
-    display_sudoku(sudoku.get_grid())
+    s.get_sudoku_grid().fill_in_candidates()
+    s.simple_elimination()
+
+    print(s)
+    display_sudoku(s.get_sudoku_grid().get_grid())

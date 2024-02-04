@@ -1,13 +1,12 @@
 import pytest
 import re
-from sudoku.sudoku import (
-    SudokuGrid,
-    InvalidSudokuInput,
+from sudoku.sudokuSolver import (
     all_rows,
     all_columns,
     all_blocks,
 )
 import numpy as np
+from sudoku.sudokuGrid import SudokuGrid, InvalidSudokuInput
 
 ROWS, COLUMNS = 9, 9
 

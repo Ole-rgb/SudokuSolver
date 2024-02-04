@@ -1,5 +1,5 @@
 import pytest
-from sudoku.sudoku import SudokuGrid
+from sudoku.sudokuGrid import SudokuGrid
 
 # from sudoku.visualizeSudoku import display_sudoku
 import numpy as np
