@@ -24,34 +24,31 @@ all_houses = all_columns + all_rows + all_blocks
 
 class SudokuSolver:
     """
-    Sudoku class represents a Sudoku puzzle and provides methods for manipulation.
+    SudokuSolver class represents a Sudoku puzzle solver.
 
     Attributes:
     - __grid (SudokuGrid): An instance of SudokuGrid representing the Sudoku puzzle.
 
     Methods:
     - __init__(self, grid_str: Union[None, str] = None) -> None:
-        Constructor for the Sudoku class. Initializes the Sudoku grid.
+        Constructor for the SudokuSolver class. Initializes the Sudoku grid.
 
-    - fill_cell(self) -> None:
-        Abstract method to be implemented by subclasses. Fills a cell in the Sudoku grid.
+    - simple_elimination(self) -> None:
+        Applies simple elimination technique to fill in candidates for empty cells.
 
-    - fill_in_candidates(self) -> None:
-        Fills in candidate values for empty cells in the Sudoku grid.
+    - remove_element(self, arr: np.ndarray, value_to_remove: int) -> np.ndarray:
+        Removes a specified value from the given NumPy array.
 
     - get_sudoku_grid(self) -> SudokuGrid:
         Returns the SudokuGrid instance representing the Sudoku puzzle.
-
-    - get_np_grid(self) -> np.ndarray:
-        Returns the NumPy array representation of the Sudoku grid.
 
     - __str__(self) -> str:
         Returns a string representation of the Sudoku puzzle.
 
     Example Usage:
-    >>> sudoku = Sudoku("530070000600195000098000060800060003400803001700020006060000280000419005000080079")
-    >>> sudoku.fill_in_candidates()
-    >>> print(sudoku)
+    >>> sudoku_solver = SudokuSolver("530070000600195000098000060800060003400803001700020006060000280000419005000080079")
+    >>> sudoku_solver.simple_elimination()
+    >>> print(sudoku_solver)
     5 3 0 | 0 7 0 | 0 0 0
     6 0 0 | 1 9 5 | 0 0 0
     0 9 8 | 0 0 0 | 0 6 0
@@ -67,11 +64,11 @@ class SudokuSolver:
 
     def __init__(self, grid_str: Union[None, str] = None) -> None:
         """
-        Constructor for the Sudoku class.
+        Constructor for the SudokuSolver class.
 
         Parameters:
         - grid_str (Union[None, str]): A string containing digits representing the initial Sudoku grid.
-          If None, an empty Sudoku grid is created.
+          If None, an empty Sudoku grid is created. The string has to be of length 9x9=81
 
         Returns:
         - None
@@ -79,31 +76,65 @@ class SudokuSolver:
         self.__grid = SudokuGrid(grid_str)
 
     def simple_elimination(self):
+        """
+        Applies the simple elimination technique to remove candidates for unassigned cells.
+        If there is one number in a cell - remove it from the candidates of the other cells in the house
+
+        Returns:
+        - None
+        """
         grid = self.get_sudoku_grid()
         for house in all_houses:
             for cell_position in house:
                 cell = grid.get_cell(cell_position)
                 if len(cell) == 1:
                     value_to_remove = cell[0]
-                    # remove cell value from houses
-                    for cell_positions2 in house:
-                        cell2_has_value_to_remove = np.any(
-                            grid.get_cell(cell_positions2) == value_to_remove
-                        )
-                        if (
-                            cell_positions2 != cell_position
-                            and cell2_has_value_to_remove
-                        ):
-                            self.get_sudoku_grid().set_cell(
-                                cell_positions2,
-                                self.remove_element(
-                                    grid.get_cell(cell_positions2), value_to_remove
-                                ),
-                            )
+                    self.remove_candidate_from_house(
+                        house, cell_position, value_to_remove
+                    )
+
+    def remove_candidate_from_house(
+        self,
+        house: list(Tuple[int, int]),
+        cell_position: Tuple[int, int],
+        value_to_remove: int,
+    ):
+        """
+        Removes the specified value from the candidates of other cells in the given house.
+
+        Parameters:
+        - house (list): The list of cell positions representing a house (row, column, or block).
+        - cell_position (tuple): The position of the cell containing the value to be removed.
+        - value_to_remove (int): The value to be removed from other cells in the house.
+
+        Returns:
+        - None
+        """
+        for other_cell_position in house:
+            if (
+                other_cell_position != cell_position
+                and value_to_remove
+                in self.get_sudoku_grid().get_cell(other_cell_position)
+            ):
+                updated_candidates = self.remove_element(
+                    self.get_sudoku_grid().get_cell(other_cell_position),
+                    value_to_remove,
+                )
+                self.get_sudoku_grid().set_cell(other_cell_position, updated_candidates)
 
     def remove_element(
         self, arr: np.ndarray, value_to_remove: Union[1, 2, 3, 4, 5, 6, 7, 8, 9]
     ) -> np.ndarray:
+        """
+        Removes a specified value from the given NumPy array.
+
+        Parameters:
+        - arr (np.ndarray): The NumPy array from which to remove the value.
+        - value_to_remove (int): The value to be removed.
+
+        Returns:
+        - np.ndarray: The modified NumPy array.
+        """
         return arr[arr != value_to_remove]
 
     def get_sudoku_grid(self) -> SudokuGrid:
@@ -122,7 +153,7 @@ class SudokuSolver:
         Returns:
         - str: The string representation of the Sudoku puzzle.
         """
-        return self.get_sudoku_grid().get_grid().__str__()
+        return self.get_sudoku_grid().__str__()
 
 
 if __name__ == "__main__":
