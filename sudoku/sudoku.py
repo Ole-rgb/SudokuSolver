@@ -125,7 +125,7 @@ class SudokuGrid:
                     candidates = list(range(1, DIGITS))
                     self.set_cell((row, column), np.array(candidates, dtype=np.uint8))
 
-    def get_cell(self, position: Tuple[int, int]):
+    def get_cell(self, position: Tuple[int, int]) -> np.ndarray:
         row, column = position
         if row < 0 or column < 0:
             raise IndexError("out of bounds for position ({},{})".format(row, column))
@@ -152,40 +152,7 @@ class SudokuGrid:
         return self.__grid.__str__()
 
 
-class SudokuUtils:
-    @staticmethod
-    def valid_houses(sudoku, row, column):
-        """
-        Check if the row, column, and 3x3 square in the Sudoku grid are valid.
-
-        Parameters:
-        - sudoku: The Sudoku grid.
-        - row: The row index.
-        - column: The column index.
-
-        Returns:
-        - bool: True if the row, column, and square are valid, False otherwise.
-        """
-        return (
-            SudokuUtils.is_valid_row(sudoku, row)
-            and SudokuUtils.is_valid_column(sudoku, column)
-            and SudokuUtils.is_valid_block(sudoku, row, column)
-        )
-
-    @staticmethod
-    def is_valid_row(sudoku, row):
-        raise NotImplementedError()
-
-    @staticmethod
-    def is_valid_column(sudoku, column):
-        raise NotImplementedError()
-
-    @staticmethod
-    def is_valid_block():
-        raise NotImplementedError()
-
-
-class Sudoku:
+class SudokuSolver:
     """
     Sudoku class represents a Sudoku puzzle and provides methods for manipulation.
 
@@ -241,13 +208,33 @@ class Sudoku:
         """
         self.__grid = SudokuGrid(grid_str)
 
-    def simple_elemination(grid: SudokuGrid):
-        for index, cell in grid:
-            if len(cell) == 1:
-                continue
-            for candidate in cell:
-                if LogicChecker.candidate_in_houses(candidate, index):
-                    not NotImplementedError("todo remove candidate from array ")
+    def simple_elimination(self):
+        grid = self.get_sudoku_grid()
+        for house in all_houses:
+            for cell_position in house:
+                cell = grid.get_cell(cell_position)
+                if len(cell) == 1:
+                    value_to_remove = cell[0]
+                    # remove cell value from houses
+                    for cell_positions2 in house:
+                        cell2_has_value_to_remove = np.any(
+                            grid.get_cell(cell_positions2) == value_to_remove
+                        )
+                        if (
+                            cell_positions2 != cell_position
+                            and cell2_has_value_to_remove
+                        ):
+                            self.get_sudoku_grid().set_cell(
+                                cell_positions2,
+                                self.remove_element(
+                                    grid.get_cell(cell_positions2), value_to_remove
+                                ),
+                            )
+
+    def remove_element(
+        self, arr: np.ndarray, value_to_remove: Union[1, 2, 3, 4, 5, 6, 7, 8, 9]
+    ) -> np.ndarray:
+        return arr[arr != value_to_remove]
 
     def get_sudoku_grid(self) -> SudokuGrid:
         """
@@ -265,18 +252,14 @@ class Sudoku:
         Returns:
         - str: The string representation of the Sudoku puzzle.
         """
-        return self.get_np_grid().__str__()
+        return self.get_sudoku_grid().get_grid().__str__()
 
 
 if __name__ == "__main__":
-    s = SudokuGrid(
-        "123456789123456789123456789123456789123456789123456789123456789123456789123456723"
+    s = SudokuSolver(
+        "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
     )
-    print(s)
+    s.get_sudoku_grid().fill_in_candidates()
+    s.simple_elimination()
 
-    # for row in all_rows:
-    #     print(row)
-    #     for cell in row:
-    #         print("{},{}".format((cell), s.get_cell(cell)))
-    new_value = np.array([1, 2, 3], dtype=np.ndarray)
-    s.set_cell((1, 0), new_value)
+    print(s)
