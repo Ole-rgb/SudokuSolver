@@ -107,7 +107,7 @@ def test_parsed_sudoku_special_character():
         SudokuGrid(sudoku_to_long)
 
 
-def test_fill_in_candidates():
+def test_fill_in_candidates_normal_sudoku():
     """
     Every 0 gets replaces with the numbers from 1 to 9
     Every numbers that is not 0 is a filled in number and therefore immutable
@@ -123,16 +123,49 @@ def test_fill_in_candidates():
     ), "first element in the first row is 5"
     assert np.array_equal(
         grid.get_grid()[0][1], np.array([3])
-    ), "first entry in the second row is 3"
+    ), "second entry in the first row is 3"
     assert np.array_equal(
         grid.get_grid()[0][2], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    ), "first element in the third row is 0 -> [0,...,9]"
+    ), "third element in the first row is 0 -> [0,...,9]"
+    assert np.array_equal(
+        grid.get_grid()[0][3], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ), "forth element in the first row is 0 -> [0,...,9]"
+    assert np.array_equal(
+        grid.get_grid()[0][4], np.array([7])
+    ), "fifth element in the first row should be 7"
+    assert np.array_equal(
+        grid.get_grid()[0][5], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ), "sixth element in the first row is 0 -> [0,...,9]"
     assert np.array_equal(
         grid.get_grid()[1][0], np.array([6])
-    ), "second element in the first row is 6"
+    ), "first element in the second row should be 6"
     assert np.array_equal(
         grid.get_grid()[1][1], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
     ), "second element in the second row is 0 -> [0,...,9]"
+    assert np.array_equal(
+        grid.get_grid()[1][2], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ), "third element in the second row is 0 -> [0,...,9]"
+    assert np.array_equal(
+        grid.get_grid()[1][3], np.array([1])
+    ), "third element in the second row should be 1"
+
+
+def test_fill_in_candidates_easy_sudoku():
+    grid = SudokuGrid(
+        "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    )
+    grid.fill_in_candidates()
+
+    # all candidates
+    for row in range(0, ROWS):
+        for column in range(0, COLUMNS):
+            if (row, column) == (0, 0):
+                assert grid.get_cell((row, column)) == [1]
+                continue
+
+            assert np.array_equal(
+                grid.get_cell((row, column)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+            )
 
 
 def test_all_rows():
