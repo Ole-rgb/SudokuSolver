@@ -337,15 +337,3 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
     assert np.array_equal(
         solver.get_sudoku_grid().get_cell((8, 7)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
     ), "(8, 7) should have all candidates"
-
-
-def test_backtracking_():
-    pass
-
-
-def test_backtracking_least_values_heuristics():
-    pass
-
-
-def test_backtracking_first_field_heuristics():
-    pass
