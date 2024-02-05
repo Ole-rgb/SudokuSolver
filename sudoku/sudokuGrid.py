@@ -47,13 +47,13 @@ class SudokuGrid:
         if type(sudoku_str) is str:
             self.__grid = self.__parse_sudoku(grid, sudoku_str)
         else:
-            for i in range(9):
-                for j in range(9):
-                    grid[i, j] = np.array([0], dtype=np.uint8)
+            for row in range(ROWS):
+                for column in range(COLUMNS):
+                    grid[row, column] = np.array([0], dtype=np.uint8)
 
             self.__grid = grid
 
-    def __parse_sudoku(self, grid, grid_str: str) -> np.ndarray:
+    def __parse_sudoku(self, grid: np.ndarray, grid_str: str) -> np.ndarray:
         """
         Parse a string representing a Sudoku grid into a 2D NumPy array.
 
@@ -93,38 +93,55 @@ class SudokuGrid:
 
         return grid
 
-    def fill_in_candidates(self) -> None:
-        """
-        Fills in candidate values for empty cells in the Sudoku grid.
-
-        Returns:
-        - None
-        """
-        grid = self.get_grid()
-        rows, columns = grid.shape
-        for row in range(rows):
-            for column in range(columns):
-                cell = self.get_cell((row, column))
-                if cell == [0]:
-                    candidates = list(range(1, DIGITS))
-                    self.set_cell((row, column), np.array(candidates, dtype=np.uint8))
-
     def get_cell(self, position: Tuple[int, int]) -> np.ndarray:
         row, column = position
         if row < 0 or column < 0:
             raise IndexError("out of bounds for position ({},{})".format(row, column))
 
-        return self.get_grid()[row][column]
+        return self.__get_grid()[row][column]
 
     def set_cell(self, position: Tuple[int, int], new_value: np.ndarray) -> None:
         row, column = position
         if row < 0 or column < 0:
             raise IndexError("out of bounds for position ({},{})".format(row, column))
 
-        self.get_grid()[row][column] = new_value
+        self.__get_grid()[row][column] = new_value
 
-    def get_grid(self) -> np.ndarray:
+    def __get_grid(self) -> np.ndarray:
         return self.__grid
+
+    def get_shape(self) -> tuple([int, int]):
+        return self.__get_grid().shape
+
+    def __iter__(self):
+        self.__iterator = (0, 0)
+        return self
+
+    def __next__(self) -> np.ndarray:
+        rows, columns = self.__iterator
+
+        if rows == ROWS or columns == COLUMNS:
+            raise StopIteration
+
+        cell = self.get_cell(self.__iterator)
+
+        self.__increase_iterator()
+        return cell
+
+    def __increase_iterator(self) -> None:
+        rows, columns = self.__iterator
+        if rows == ROWS or columns == COLUMNS:
+            raise IndexError(
+                "Index: {} out of range for size: {}", self.__iterator, self.get_shape()
+            )
+
+        if columns == COLUMNS - 1:
+            rows += 1
+            self.__iterator = (rows, 0)
+            return
+
+        columns += 1
+        self.__iterator = (rows, columns)
 
     def __str__(self) -> str:
         """
@@ -133,16 +150,25 @@ class SudokuGrid:
         Returns:
         - str: The formatted string representation of the Sudoku puzzle.
         """
-        grid = self.get_grid()
-        rows, columns = grid.shape
 
         result = ""
-        for i in range(rows):
-            if i % 3 == 0 and i != 0:
-                result += "-" * 21 + "\n"
-            for j in range(columns):
-                if j % 3 == 0 and j != 0:
-                    result += "| "
-                result += f"{grid[i, j]} "
-            result += "\n"
+        for index, cell in enumerate(self):
+            if index % (COLUMNS / 3) == 0 and index != 0 and index % 9 != 0:
+                result += "| "
+            if index % COLUMNS == 0 and index != 0:
+                result += "\n"
+            if index % (ROWS * 3) == 0 and index != 0:
+                result += "-" * 39 + "\n"
+            result += f"{cell} "
+
         return result.strip()
+
+
+if __name__ == "__main__":
+    grid = SudokuGrid(
+        "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
+    )
+
+    # for cell in grid:
+    #     print("cell with value:{}".format(cell))
+    print(grid)

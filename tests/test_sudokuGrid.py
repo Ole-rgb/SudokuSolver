@@ -1,10 +1,6 @@
 import pytest
 import re
-from sudoku.sudokuSolver import (
-    all_rows,
-    all_columns,
-    all_blocks,
-)
+from sudoku.sudokuSolver import all_rows, all_columns, all_blocks, SudokuSolver
 import numpy as np
 from sudoku.sudokuGrid import SudokuGrid, InvalidSudokuInput
 
@@ -17,8 +13,10 @@ Testing the SudokuGrid() class
 
 def test_grid_size():
     grid = SudokuGrid()
-    assert grid.get_grid().size == ROWS * COLUMNS, "Should have the size 81 aka 9*9"
-    assert grid.get_grid().shape == (
+    assert (
+        grid.get_shape()[0] * grid.get_shape()[1] == ROWS * COLUMNS
+    ), "Should have the size 81 aka 9*9"
+    assert grid.get_shape() == (
         ROWS,
         COLUMNS,
     ), "Should be an array of form 9x9 with all zeros"
@@ -26,15 +24,16 @@ def test_grid_size():
 
 def test_grid_values():
     grid = SudokuGrid()
-    assert type(grid.get_grid()[0][0]) == np.ndarray, "Should have the type of array"
-    # assert grid.get_grid().shape == (ROWS, COLUMNS), "Should be an array of form 9x9 with all zeros"
+    assert (
+        type(grid.get_cell((0, 0))) == np.ndarray
+    ), "Should have the type of np.ndarray"
 
 
 def test_default_grid_values():
     grid = SudokuGrid()
     for column in range(1, COLUMNS):
         for row in range(1, ROWS):
-            assert grid.get_grid()[row][column] == [0], "every entry should be zero"
+            assert grid.get_cell((row, column)) == [0], "every entry should be zero"
 
 
 def test_parsed_sudoku_values_all_ones():
@@ -44,7 +43,7 @@ def test_parsed_sudoku_values_all_ones():
     assert len(sudoku) == ROWS * COLUMNS, "Sudoku field has 81 cells"
     for column in range(1, COLUMNS):
         for row in range(1, ROWS):
-            assert grid.get_grid()[row][column] == [1], "every entry should be one"
+            assert grid.get_cell((row, column)) == [1], "every entry should be one"
 
 
 def test_parsed_sudoku_values_asc_in_row():
@@ -53,16 +52,16 @@ def test_parsed_sudoku_values_asc_in_row():
 
     assert len(sudoku) == ROWS * COLUMNS, "Sudoku field has 81 cells"
     assert (
-        grid.get_grid()[0][0] == [1]
-        and grid.get_grid()[0][1] == [2]
-        and grid.get_grid()[0][2] == [3]
-        and grid.get_grid()[0][8] == [9]
+        grid.get_cell((0, 0)) == [1]
+        and grid.get_cell((0, 1)) == [2]
+        and grid.get_cell((0, 2)) == [3]
+        and grid.get_cell((0, 8)) == [9]
     ), "first row should have the values 1,2,...,9"
     assert (
-        grid.get_grid()[0][0] == [1]
-        and grid.get_grid()[1][0] == [1]
-        and grid.get_grid()[2][0] == [1]
-        and grid.get_grid()[8][0] == [1]
+        grid.get_cell((0, 0)) == [1]
+        and grid.get_cell((1, 0)) == [1]
+        and grid.get_cell((2, 0)) == [1]
+        and grid.get_cell((8, 0)) == [1]
     ), "first column should have the value 1"
 
 
@@ -106,65 +105,29 @@ def test_parsed_sudoku_special_character():
         SudokuGrid(sudoku_to_long)
 
 
-def test_fill_in_candidates_normal_sudoku():
-    """
-    Every 0 gets replaces with the numbers from 1 to 9
-    Every numbers that is not 0 is a filled in number and therefore immutable
-    """
-    grid_string = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
+def test_iterate_grid():
+    sudoku = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
+    grid = SudokuGrid(sudoku)
+    counter = 0
+    for _ in grid:
+        counter += 1
+    assert (
+        counter == ROWS * COLUMNS
+    ), "The counter should iterate over every element, aka 81 elements"
 
-    grid = SudokuGrid(grid_string)
-
-    grid.fill_in_candidates()
-
-    assert np.array_equal(
-        grid.get_grid()[0][0], np.array([5])
-    ), "first element in the first row is 5"
-    assert np.array_equal(
-        grid.get_grid()[0][1], np.array([3])
-    ), "second entry in the first row is 3"
-    assert np.array_equal(
-        grid.get_grid()[0][2], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    ), "third element in the first row is 0 -> [0,...,9]"
-    assert np.array_equal(
-        grid.get_grid()[0][3], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    ), "forth element in the first row is 0 -> [0,...,9]"
-    assert np.array_equal(
-        grid.get_grid()[0][4], np.array([7])
-    ), "fifth element in the first row should be 7"
-    assert np.array_equal(
-        grid.get_grid()[0][5], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    ), "sixth element in the first row is 0 -> [0,...,9]"
-    assert np.array_equal(
-        grid.get_grid()[1][0], np.array([6])
-    ), "first element in the second row should be 6"
-    assert np.array_equal(
-        grid.get_grid()[1][1], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    ), "second element in the second row is 0 -> [0,...,9]"
-    assert np.array_equal(
-        grid.get_grid()[1][2], np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    ), "third element in the second row is 0 -> [0,...,9]"
-    assert np.array_equal(
-        grid.get_grid()[1][3], np.array([1])
-    ), "third element in the second row should be 1"
-
-
-def test_fill_in_candidates_easy_sudoku():
-    grid = SudokuGrid(
-        "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
-    )
-    grid.fill_in_candidates()
-
-    # all candidates
-    for row in range(0, ROWS):
-        for column in range(0, COLUMNS):
-            if (row, column) == (0, 0):
-                assert grid.get_cell((row, column)) == [1]
-                continue
-
+    for index, cell in enumerate(grid):
+        if index == 0:
             assert np.array_equal(
-                grid.get_cell((row, column)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            )
+                cell, [5]
+            ), "The first element should be 5 (the first element of the array)"
+        if index == 1:
+            assert np.array_equal(
+                cell, [3]
+            ), "The gird should iterate each row (the second element of the array is 3)"
+        if index == ROWS * COLUMNS - 1:
+            assert np.array_equal(
+                cell, [9]
+            ), "The last element should be 9 (the last element of the array)"
 
 
 def test_all_rows():
@@ -246,16 +209,16 @@ def test_set_cell():
     grid = SudokuGrid()
     new_value = np.array([1, 2, 3], dtype=np.ndarray)
 
-    assert grid.get_grid()[1][0] == [0]
+    assert grid.get_cell((1, 0)) == [0]
 
     grid.set_cell((1, 0), new_value)
 
-    assert grid.get_grid()[0][0] == [0] and grid.get_grid()[3][3] == [
-        0 and grid.get_grid()[8][8] == [0]
+    assert grid.get_cell((0, 0)) == [0] and grid.get_cell((3, 3)) == [
+        0 and grid.get_cell((8, 8)) == [0]
     ], "The other cells should still be [0]"
 
     assert np.array_equal(
-        grid.get_grid()[1][0], [1, 2, 3]
+        grid.get_cell((1, 0)), [1, 2, 3]
     ), "The cell should be filled with the new array [1,2,3]"
 
 
@@ -270,7 +233,7 @@ def test_set_cell_out_of_positive_bounds():
     with pytest.raises(IndexError, match=MSG):
         grid.set_cell((9, 9), new_value)
 
-    for cell in grid.get_grid().all():
+    for cell in grid:
         assert cell == [0], "All cells should still be filled with the initial [0]"
 
 
@@ -291,7 +254,7 @@ def test_set_cell_out_of_negative_bounds():
     ):
         grid.set_cell((-1, -1), new_value)
 
-    for cell in grid.get_grid().all():
+    for cell in grid:
         assert cell == [0], "All cells should still be filled with the initial [0]"
 
 
