@@ -37,13 +37,18 @@ class Variable(Generic[T]):
         self.__value = value
 
     def set_domain(self, domain):
-        if self.__value not in domain and domain != None:
-            raise ValueError(
-                "New domain: {} doesnt contain value: {}".format(
-                    domain, self.get_value()
-                )
-            )
-        self.__domain = domain
+        current_value = self.get_value()
+
+        if current_value is None:
+            self.__domain = domain
+            return
+        if current_value in domain:
+            self.__domain = domain
+            return
+
+        raise ValueError(
+            "New domain: {} doesn't contain value: {}".format(domain, current_value)
+        )
 
     def get_variable_name(self) -> str:
         return self.__unique_name
