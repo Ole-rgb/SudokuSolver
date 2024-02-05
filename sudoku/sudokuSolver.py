@@ -1,9 +1,6 @@
 import numpy as np
 from typing import Union, Tuple
-from sudoku.sudokuGrid import SudokuGrid
-
-ROWS, COLUMNS = (9, 9)
-DIGITS = 10
+from sudoku.sudokuGrid import SudokuGrid, ROWS, COLUMNS, DIGITS
 
 # same for rows
 all_rows = [[(row, column) for column in range(COLUMNS)] for row in range(ROWS)]

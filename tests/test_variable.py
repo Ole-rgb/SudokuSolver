@@ -35,13 +35,29 @@ def test_set_variable_not_in_domain():
     assert v1.get_value() == None, "should be None"
 
 
-def test_set_domain_without_assigned_variable():
+def test_set_domain_with_assigned_variable():
     v1 = Variable[int]("v1", 1, [1, 2, 3])
     with pytest.raises(
         ValueError, match=re.escape("New domain: [2, 3] doesnt contain value: 1")
     ):
         v1.set_domain([2, 3])
     assert v1.get_value() == 1, "should still be 1"
+    assert v1.get_domain() == [1, 2, 3]
+
+
+def test_set_domain_with_assigned_variable():
+    v1 = Variable[int]("v1", 1, [1, 2, 3])
+    v1.set_domain([1, 3])
+    assert v1.get_value() == 1, "should still be 1"
+    assert v1.get_domain() == [1, 3]
+
+
+def test_set_domain_without_assigned_variable():
+    v1 = Variable[int]("v1", None, [1, 2, 3])
+    v1.set_domain([2, 3])
+
+    assert v1.get_value() == None, "should still be None"
+    assert v1.get_domain() == [2, 3]
 
 
 def test_value_is_assigned():

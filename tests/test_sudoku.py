@@ -7,7 +7,7 @@ from sudoku.sudokuSolver import (
 )
 import numpy as np
 
-ROWS, COLUMNS = 9, 9
+from sudoku.sudokuGrid import ROWS, COLUMNS
 
 
 def test_fill_in_candidates_normal_sudoku():
@@ -287,9 +287,6 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
             solver.get_sudoku_grid().get_cell((row, column)),
             np.array([2, 3, 4, 5, 6, 7, 8, 9]),
         ), "the last column (starting at the second cell) should have the candidates 1-9 without the 1"
-
-    # the rest should have all candidates
-    # test via random sample survey
 
     assert np.array_equal(
         solver.get_sudoku_grid().get_cell((1, 5)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])

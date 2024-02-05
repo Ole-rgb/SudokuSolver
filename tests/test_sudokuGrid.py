@@ -2,9 +2,7 @@ import pytest
 import re
 from sudoku.sudokuSolver import all_rows, all_columns, all_blocks, SudokuSolver
 import numpy as np
-from sudoku.sudokuGrid import SudokuGrid, InvalidSudokuInput
-
-ROWS, COLUMNS = 9, 9
+from sudoku.sudokuGrid import SudokuGrid, InvalidSudokuInput, ROWS, COLUMNS
 
 """
 Testing the SudokuGrid() class
@@ -223,9 +221,9 @@ def test_set_cell():
 
 
 def test_set_cell_out_of_positive_bounds():
+    MSG = "index 9 is out of bounds for axis 0 with size 9"
     grid = SudokuGrid()
     new_value = np.array([1, 2, 3], dtype=np.ndarray)
-    MSG = "index 9 is out of bounds for axis 0 with size 9"
     with pytest.raises(IndexError, match=MSG):
         grid.set_cell((9, 0), new_value)
     with pytest.raises(IndexError, match=MSG):
