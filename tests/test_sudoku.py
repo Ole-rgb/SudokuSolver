@@ -10,12 +10,74 @@ import numpy as np
 ROWS, COLUMNS = 9, 9
 
 
+def test_fill_in_candidates_normal_sudoku():
+    """
+    Every 0 gets replaces with the numbers from 1 to 9
+    Every numbers that is not 0 is a filled in number and therefore immutable
+    """
+    grid_string = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
+
+    solver = SudokuSolver(grid_string)
+    grid = solver.get_sudoku_grid()
+    solver.fill_in_candidates()
+
+    assert np.array_equal(
+        grid.get_cell((0, 0)), np.array([5])
+    ), "first element in the first row is 5"
+    assert np.array_equal(
+        grid.get_cell((0, 1)), np.array([3])
+    ), "second entry in the first row is 3"
+    assert np.array_equal(
+        grid.get_cell((0, 2)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ), "third element in the first row is 0 -> [0,...,9]"
+    assert np.array_equal(
+        grid.get_cell((0, 3)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ), "forth element in the first row is 0 -> [0,...,9]"
+    assert np.array_equal(
+        grid.get_cell((0, 4)), np.array([7])
+    ), "fifth element in the first row should be 7"
+    assert np.array_equal(
+        grid.get_cell((0, 5)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ), "sixth element in the first row is 0 -> [0,...,9]"
+    assert np.array_equal(
+        grid.get_cell((1, 0)), np.array([6])
+    ), "first element in the second row should be 6"
+    assert np.array_equal(
+        grid.get_cell((1, 1)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ), "second element in the second row is 0 -> [0,...,9]"
+    assert np.array_equal(
+        grid.get_cell((1, 2)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ), "third element in the second row is 0 -> [0,...,9]"
+    assert np.array_equal(
+        grid.get_cell((1, 3)), np.array([1])
+    ), "third element in the second row should be 1"
+
+
+def test_fill_in_candidates_easy_sudoku():
+    sudoku_solver = SudokuSolver(
+        "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    )
+    grid = sudoku_solver.get_sudoku_grid()
+    sudoku_solver.fill_in_candidates()
+
+    # all candidates
+    for row in range(0, ROWS):
+        for column in range(0, COLUMNS):
+            if (row, column) == (0, 0):
+                assert grid.get_cell((row, column)) == [1]
+                continue
+
+            assert np.array_equal(
+                grid.get_cell((row, column)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+            )
+
+
 def test_simple_elemination_one_number():
     # with empty sudoku
     solver = SudokuSolver(
         "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
     )
-    solver.get_sudoku_grid().fill_in_candidates()
+    solver.fill_in_candidates()
     solver.simple_elimination()
 
     # first block, first row and first column should have candidates 2-9, except (0,0) = [1]
@@ -93,7 +155,7 @@ def test_simple_elemination_two_numbers_different_value_different_block_row_colu
     solver = SudokuSolver(
         "100000000020000000000000000000000000000000000000000000000000000000000000000000000"
     )
-    solver.get_sudoku_grid().fill_in_candidates()
+    solver.fill_in_candidates()
     solver.simple_elimination()
 
     # fixed values
@@ -166,7 +228,7 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
     solver = SudokuSolver(
         "100000000000000000000000000000000001000000000000000000000000000000000000000000000"
     )
-    solver.get_sudoku_grid().fill_in_candidates()
+    solver.fill_in_candidates()
     solver.simple_elimination()
 
     # fixed values
@@ -275,3 +337,15 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
     assert np.array_equal(
         solver.get_sudoku_grid().get_cell((8, 7)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
     ), "(8, 7) should have all candidates"
+
+
+def test_backtracking_():
+    pass
+
+
+def test_backtracking_least_values_heuristics():
+    pass
+
+
+def test_backtracking_first_field_heuristics():
+    pass

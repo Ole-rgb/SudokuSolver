@@ -6,15 +6,19 @@ ROWS, COLUMNS = (9, 9)
 DIGITS = 10
 
 # same for rows
-all_rows = [[(i, j) for j in range(9)] for i in range(9)]
+all_rows = [[(row, column) for column in range(COLUMNS)] for row in range(ROWS)]
 
 # return columns' lists of cells
-all_columns = [[(i, j) for i in range(9)] for j in range(9)]
+all_columns = [[(row, column) for row in range(ROWS)] for column in range(COLUMNS)]
 
 # same for blocks
 # this list comprehension is unreadable, but quite cool!
 all_blocks = [
-    [((i // 3) * 3 + j // 3, (i % 3) * 3 + j % 3) for j in range(9)] for i in range(9)
+    [
+        ((row // 3) * 3 + column // 3, (row % 3) * 3 + column % 3)
+        for column in range(COLUMNS)
+    ]
+    for row in range(ROWS)
 ]
 
 # combine three
@@ -91,6 +95,22 @@ class SudokuSolver:
                     self.remove_candidate_from_house(
                         house, cell_position, value_to_remove
                     )
+
+    def fill_in_candidates(self) -> None:
+        """
+        Fills in candidate values for empty cells in the Sudoku grid.
+
+        Returns:
+        - None
+        """
+        grid = self.get_sudoku_grid()
+        rows, columns = grid.get_shape()
+        for row in range(rows):
+            for column in range(columns):
+                cell = grid.get_cell((row, column))
+                if cell == [0]:
+                    candidates = list(range(1, DIGITS))
+                    grid.set_cell((row, column), np.array(candidates, dtype=np.uint8))
 
     def remove_candidate_from_house(
         self,
