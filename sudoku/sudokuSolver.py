@@ -97,9 +97,9 @@ class SudokuSolver:
         for house in all_houses:
             for cell_position in house:
                 cell = grid.get_cell(cell_position)
-                if len(cell) == 1:
+                if len(cell) == 1 and cell[0] != 0:
                     value_to_remove = cell[0]
-                    report += self.remove_candidate_from_house(
+                    report += self.__remove_candidate_from_house(
                         house, cell_position, value_to_remove
                     )
         return report
@@ -120,7 +120,7 @@ class SudokuSolver:
                     candidates = list(range(1, DIGITS))
                     grid.set_cell((row, column), np.array(candidates, dtype=np.uint8))
 
-    def remove_candidate_from_house(
+    def __remove_candidate_from_house(
         self,
         house: list(Tuple[int, int]),
         cell_position: Tuple[int, int],
@@ -144,7 +144,7 @@ class SudokuSolver:
                 and value_to_remove
                 in self.get_sudoku_grid().get_cell(other_cell_position)
             ):
-                updated_candidates, removed = self.remove_element(
+                updated_candidates, removed = self.__remove_element(
                     self.get_sudoku_grid().get_cell(other_cell_position),
                     value_to_remove,
                 )
@@ -152,7 +152,7 @@ class SudokuSolver:
                 self.get_sudoku_grid().set_cell(other_cell_position, updated_candidates)
         return report
 
-    def remove_element(
+    def __remove_element(
         self, arr: np.ndarray, value_to_remove: Union[1, 2, 3, 4, 5, 6, 7, 8, 9]
     ) -> Tuple[np.ndarray, int]:
         """
@@ -165,12 +165,12 @@ class SudokuSolver:
         Returns:
         - np.ndarray: The modified NumPy array.
         """
-        number_of_candiates = len(arr)
+        removed = 1 if value_to_remove in arr else 0
 
-        arr = arr[arr != value_to_remove]
-
-        report = number_of_candiates - len(arr)
-        return (arr, report)
+        filtered_array = list(
+            filter(lambda candidate: candidate != value_to_remove, arr)
+        )
+        return (filtered_array, removed)
 
     def get_sudoku_grid(self) -> SudokuGrid:
         """
@@ -193,6 +193,7 @@ class SudokuSolver:
 
         self.fill_in_candidates()
 
+        # keep eliminating if possible
         while True:
             removed_candidates = self.simple_elimination()
             print_debug(removed_candidates)
@@ -321,9 +322,12 @@ class SudokuCSPAdapter:
 
 
 if __name__ == "__main__":
+    weird_sudoku = "100000000000000000000000000000000000010000000000000000000000000000000000000000000"
     hard_sudoku = "805000002000901000300000000060700400200050000000000060000380000010000900040000070"
     other_hard_sudoku = "805000002000901000300000000060700400200050000000000060000380000040000700010000090"
     easy_sudoku = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
-    s = SudokuSolver(other_hard_sudoku)
+    s = SudokuSolver(
+        "123456700000000000000000000000008000000000000000000000391547620000000000000000000"
+    )
 
     print("Time passed: {}seconds".format(s.solve_soduku()))
