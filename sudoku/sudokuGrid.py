@@ -120,7 +120,14 @@ class SudokuGrid:
         self.__iterator = (0, 0)
         return self
 
-    def __next__(self) -> np.ndarray:
+    def candidates_to_remove(self):
+        to_remove = 0
+        for row in range(1, ROWS):
+            for column in range(1, COLUMNS):
+                to_remove += len(self.get_cell((row, column))) - 1
+        return to_remove
+
+    def __next__(self) -> list:
         rows, columns = self.__iterator
 
         if rows == ROWS or columns == COLUMNS:
