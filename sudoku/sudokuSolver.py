@@ -84,26 +84,6 @@ class SudokuSolver:
         """
         self.__grid = SudokuGrid(grid_str)
 
-    def simple_elimination(self) -> int:
-        """
-        Applies the simple elimination technique to remove candidates for unassigned cells.
-        If there is one number in a cell - remove it from the candidates of the other cells in the house
-
-        Returns:
-        - int: number of removed candidates
-        """
-        report = 0
-        grid = self.get_sudoku_grid()
-        for house in all_houses:
-            for cell_position in house:
-                cell = grid.get_cell(cell_position)
-                if len(cell) == 1 and cell[0] != 0:
-                    value_to_remove = cell[0]
-                    report += self.__remove_candidate_from_house(
-                        house, cell_position, value_to_remove
-                    )
-        return report
-
     def fill_in_candidates(self) -> None:
         """
         Fills in candidate values for empty cells in the Sudoku grid.
@@ -171,6 +151,56 @@ class SudokuSolver:
             filter(lambda candidate: candidate != value_to_remove, arr)
         )
         return (filtered_array, removed)
+
+    def simple_elimination(self) -> int:
+        """
+        Applies the simple elimination technique to remove candidates for unassigned cells.
+        If there is one number in a cell - remove it from the candidates of the other cells in the house
+
+        Returns:
+        - int: number of removed candidates
+        """
+        report = 0
+        grid = self.get_sudoku_grid()
+        for house in all_houses:
+            for cell_position in house:
+                cell = grid.get_cell(cell_position)
+                if len(cell) == 1 and cell[0] != 0:
+                    value_to_remove = cell[0]
+                    report += self.__remove_candidate_from_house(
+                        house, cell_position, value_to_remove
+                    )
+        return report
+
+    def hidden_single(self) -> int:
+        # if there is only one instance of a candidate in house - keep only it
+
+        removed = 0
+        for house in all_houses:
+            for candidate in range(1, DIGITS):
+                removed += self.find_only_canidate_in_house(candidate, house)
+        return removed
+
+    def find_only_canidate_in_house(self, candidate: int, house: Tuple[int, int]):
+        grid = self.get_sudoku_grid()
+        removed = 0
+        count = 0
+        cell_to_clean = (None, None)
+        for cell_position in house:
+            for cell_candidate in grid.get_cell(cell_position):
+                if cell_candidate == candidate:
+                    # found candidate amongst the cell_candidates
+                    count += 1
+                    cell_to_clean = cell_position
+        if (
+            count == 1
+            and cell_to_clean != (None, None)
+            and len(grid.get_cell(cell_to_clean)) > 1
+        ):
+            # only one instance of the candidate found
+            removed = len(grid.get_cell(cell_to_clean)) - 1
+            grid.set_cell(cell_to_clean, np.array([candidate]))
+        return removed
 
     def get_sudoku_grid(self) -> SudokuGrid:
         """
@@ -327,7 +357,7 @@ if __name__ == "__main__":
     other_hard_sudoku = "805000002000901000300000000060700400200050000000000060000380000040000700010000090"
     easy_sudoku = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
     s = SudokuSolver(
-        "123456700000000000000000000000008000000000000000000000391547620000000000000000000"
+        "123456700000000000000000000000008000000000000000000000391540600000000000000000000"
     )
 
     print("Time passed: {}seconds".format(s.solve_soduku()))
