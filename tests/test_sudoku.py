@@ -454,3 +454,90 @@ def test_remove_candidates_from_house():
     # solver = SudokuSolver()
     # solver._SudokuSolver__remove_candidate_from_house()
     pass
+
+
+def test_find_only_canidate_in_house_one_cell_rest_zeros():
+    solver = SudokuSolver(
+        "000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    )
+    solver.get_sudoku_grid().set_cell((0, 0), [1, 2, 3])
+
+    assert (
+        solver.find_only_canidate_in_house(1, all_blocks[0]) == 2
+    ), "removed 2 candidates"
+    assert solver.get_sudoku_grid().get_cell((0, 0)) == [
+        1
+    ], "removed all other candidates for the cell"
+
+
+def test_find_only_canidate_in_house_no_removed():
+    solver = SudokuSolver(
+        "123000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    )
+    solver.get_sudoku_grid().set_cell((0, 3), [1, 2, 3, 4, 5, 6])
+
+    assert solver.find_only_canidate_in_house(1, all_blocks[0]) == 0
+    assert np.array_equal(solver.get_sudoku_grid().get_cell((0, 3)), [1, 2, 3, 4, 5, 6])
+
+
+def test_find_only_canidate_in_house_with_filled_candidates():
+    solver = SudokuSolver(
+        "123450000000000000000000000000000000000000000000000000000000000000000000000000000"
+    )
+    solver.fill_in_candidates()
+
+    solver.get_sudoku_grid().set_cell((0, 5), [6, 7, 8])
+    solver.get_sudoku_grid().set_cell((0, 6), [6, 7, 8])
+    solver.get_sudoku_grid().set_cell((0, 7), [6, 7, 8])
+    solver.get_sudoku_grid().set_cell((0, 8), [6, 7, 8, 9])
+
+    assert solver.find_only_canidate_in_house(7, all_rows[0]) == 0
+    assert np.array_equal(solver.get_sudoku_grid().get_cell((0, 8)), [6, 7, 8, 9])
+
+    assert solver.find_only_canidate_in_house(2, all_rows[0]) == 0
+
+    assert solver.find_only_canidate_in_house(9, all_rows[0]) == 3
+    assert np.array_equal(solver.get_sudoku_grid().get_cell((0, 8)), [9])
+
+
+def test_hidden_single_no_removes():
+    solver = SudokuSolver(
+        "123450000000000000000000000000000000000000000000000000000000000000000000000000000"
+    )
+    solver.fill_in_candidates()
+
+    assert solver.hidden_single() == 0
+
+
+def test_hidden_single_one_cell():
+    solver = SudokuSolver(
+        "123450000000000000000000000000000000000000000000000000000000000000000000000000000"
+    )
+    solver.fill_in_candidates()
+
+    solver.get_sudoku_grid().set_cell((0, 5), [6, 7, 9])
+    solver.get_sudoku_grid().set_cell((0, 6), [6, 7, 9])
+    solver.get_sudoku_grid().set_cell((0, 7), [6, 7, 9])
+    solver.get_sudoku_grid().set_cell((0, 8), [6, 7, 8])
+    assert solver.hidden_single() == 2
+    assert np.array_equal(solver.get_sudoku_grid().get_cell((0, 8)), [8])
+
+
+def test_hidden_single_two_cell():
+    solver = SudokuSolver(
+        "123456000000000000000000000000008000000000000000000000391540600000000000000000000"
+    )
+    solver.fill_in_candidates()
+
+    solver.get_sudoku_grid().set_cell((0, 6), [8, 9])
+    solver.get_sudoku_grid().set_cell((0, 7), [7, 8])
+    solver.get_sudoku_grid().set_cell((0, 8), [8, 9])
+
+    solver.get_sudoku_grid().set_cell((6, 5), [2, 8])
+
+    solver.get_sudoku_grid().set_cell((6, 7), [2, 8, 7])
+    solver.get_sudoku_grid().set_cell((6, 8), [2, 8])
+
+    assert solver.hidden_single() == 3
+    assert np.array_equal(solver.get_sudoku_grid().get_cell((6, 7)), [7])
+    assert np.array_equal(solver.get_sudoku_grid().get_cell((0, 7)), [7])
