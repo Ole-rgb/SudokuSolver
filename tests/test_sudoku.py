@@ -347,3 +347,110 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
     assert np.array_equal(
         solver.get_sudoku_grid().get_cell((8, 7)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
     ), "(8, 7) should have all candidates"
+
+
+def test_simple_elemination_numbers_no_candidates():
+    solver = SudokuSolver(
+        "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    )
+    assert (
+        solver.simple_elimination() == 0
+    ), "there are no filled in candidates to remove"
+
+
+def test_simple_elemination_numbers_removed_candidates():
+    solver = SudokuSolver(
+        "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    )
+    solver.fill_in_candidates()  # 9 candidates in 80 cells 9*80
+    assert (
+        solver.simple_elimination() == 20
+    ), "should removed 1 from every cell in constraint houses"
+
+
+def test_simple_elemination_numbers_same_value_different_row_different_block_different_column():
+    solver = SudokuSolver(
+        "100000000000000000000000000000000000010000000000000000000000000000000000000000000"
+    )
+    solver.fill_in_candidates()
+    assert solver.simple_elimination() == 34
+
+
+def test_simple_elemination_numbers_different_value_different_row_different_block_different_column():
+    solver = SudokuSolver(
+        "100000000000000000000000000000000000020000000000000000000000000000000000000000000"
+    )
+    solver.fill_in_candidates()
+    assert solver.simple_elimination() == 40
+
+
+def test_simple_elemination_two_iterations_second_empty():
+    solver = SudokuSolver(
+        "100000000000000000000000000000000000020000000000000000000000000000000000000000000"
+    )
+    solver.fill_in_candidates()
+    assert solver.simple_elimination() == 40
+    assert solver.simple_elimination() == 0
+
+
+def test_simple_elemination_two_iterations_second_removes_values():
+    solver = SudokuSolver(
+        "123456700000000000000000000000008000000000000000000000391547620000000000000000000"
+    )
+    solver.fill_in_candidates()
+    assert (
+        solver.simple_elimination() != 0
+    ), "remove alot of candidates because everywhere [1,2,..,9]"
+    assert (
+        solver.simple_elimination() != 0
+    ), "can remove further, because 7th row has only one candidate for last cell"
+    assert (
+        solver.simple_elimination() != 0
+    ), "can remove further, because 1th row has only one candidate in last cell"
+    assert (
+        solver.simple_elimination() == 0
+    ), "cant remove further, no additional call has only one candidate."
+
+
+def test_remove_element_remove_element():
+    solver = SudokuSolver()
+    new_array, removed = solver._SudokuSolver__remove_element([0, 1, 2], 2)
+
+    assert np.array_equal(new_array, [0, 1])
+    assert removed == 1
+
+
+def test_remove_element_not_in_list():
+    solver = SudokuSolver()
+    new_array, removed = solver._SudokuSolver__remove_element([0, 1, 2], 3)
+
+    assert np.array_equal(new_array, [0, 1, 2])
+    assert removed == 0
+
+
+def test_remove_element_one_element_left():
+    solver = SudokuSolver()
+    new_array, removed = solver._SudokuSolver__remove_element([0, 1], 1)
+
+    assert np.array_equal(new_array, [0])
+    assert removed == 1
+
+
+def test_remove_element_array_empty_after_remove():
+    solver = SudokuSolver()
+
+    new_array, removed = solver._SudokuSolver__remove_element([1], 1)
+
+
+def test_remove_element_one_element_array_remove_other_candidate():
+    solver = SudokuSolver()
+
+    new_array, removed = solver._SudokuSolver__remove_element([1], 2)
+    assert new_array == [1]
+    assert removed == 0
+
+
+def test_remove_candidates_from_house():
+    # solver = SudokuSolver()
+    # solver._SudokuSolver__remove_candidate_from_house()
+    pass
