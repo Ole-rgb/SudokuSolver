@@ -1,40 +1,45 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sudoku.sudokuSolver import SudokuSolver
+from sudoku.sudokuSolver import SudokuSolver, SudokuGrid, ROWS, COLUMNS
 
 
-def display_sudoku(grid):
+def display_sudoku(grid: SudokuGrid):
     """
     Display the Sudoku grid as an image.
     """
 
     _, ax = plt.subplots(figsize=(6, 6))
-    ax.matshow(np.ones_like(np.zeros((9, 9))) * -1, cmap="Blues", vmin=-2, vmax=2)
+    ax.matshow(
+        np.ones_like(np.zeros((ROWS, COLUMNS))) * -1, cmap="Blues", vmin=-2, vmax=2
+    )
 
-    for i in range(9):
-        for j in range(9):
-            if len(grid[i][j]) == 1 and grid[i][j] != 0:
+    for row in range(ROWS):
+        for column in range(COLUMNS):
+            if (
+                len(grid.get_cell((row, column))) == 1
+                and grid.get_cell((row, column)) != 0
+            ):
                 # Displays fixed numbers
-                number = grid[i][j][0]
+                number = grid.get_cell((row, column))[0]
                 ax.text(
-                    j,
-                    i,
+                    column,
+                    row,
                     str(number),
                     ha="center",
                     va="center",
                     fontsize=12,
                     color="black",
                 )
-            elif len(grid[i][j]) > 1:
+            elif len(grid.get_cell((row, column))) > 1:
                 # Displays candidates
                 display_candidates = ""
-                for index, candidate in enumerate(grid[i][j]):
+                for index, candidate in enumerate(grid.get_cell((row, column))):
                     if index % 3 == 0:
                         display_candidates += "\n"
                     display_candidates += "{} ".format(candidate)
                 ax.text(
-                    j,
-                    i,
+                    column,
+                    row,
                     display_candidates,
                     ha="center",
                     va="center",
@@ -55,10 +60,10 @@ def display_sudoku(grid):
 if __name__ == "__main__":
 
     s = SudokuSolver(
-        "100000000000000000000000000000000001000000000000000000000000000000000000000000000"
+        "100000050006000007000000090000004000000000000030000000000080000000000000000000200"
     )
-    s.get_sudoku_grid().fill_in_candidates()
+    s.get_sudoku_grid()
+    s.fill_in_candidates()
     s.simple_elimination()
 
-    print(s)
-    display_sudoku(s.get_sudoku_grid().get_grid())
+    display_sudoku(s.get_sudoku_grid())

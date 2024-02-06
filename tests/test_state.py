@@ -28,7 +28,7 @@ def test_valid_solution_with_all_assigned_and_satisfied_constraints(
     state = State(example_variables, [example_constraints[0]])
     for variable in example_variables:
         variable.set_value(1)
-    assert state._valid_solution()
+    assert state.valid_solution()
 
 
 def test_invalid_solution_with_all_assigned_but_unsatisfied_constraints(
@@ -37,7 +37,7 @@ def test_invalid_solution_with_all_assigned_but_unsatisfied_constraints(
     state = State(example_variables, example_constraints)
     for variable in example_variables:
         variable.set_value(1)
-    assert not state._valid_solution()
+    assert not state.valid_solution()
 
 
 def test_invalid_solution_with_unassigned_variable(
@@ -46,7 +46,7 @@ def test_invalid_solution_with_unassigned_variable(
     state = State(example_variables, [example_constraints[0]])
     for variable in example_variables[:-1]:
         variable.set_value(1)
-    assert not state._valid_solution()
+    assert not state.valid_solution()
 
 
 def test_invalid_solution_with_unassigned_variable_and_unsatisfied_constraints(
@@ -55,7 +55,7 @@ def test_invalid_solution_with_unassigned_variable_and_unsatisfied_constraints(
     state = State(example_variables, example_constraints)
     for variable in example_variables[:-1]:
         variable.set_value(1)
-    assert not state._valid_solution()
+    assert not state.valid_solution()
 
 
 def test_all_variables_assigned(example_variables, example_constraints):
@@ -132,9 +132,9 @@ def test_valid_state_with_unsatisfied_constraints_not_all_variables_assigned(
     assert state.valid_state()
 
 
-def test_assign_variable(example_variables, example_constraints):
+def test__next_state(example_variables, example_constraints):
     state = State(example_variables, example_constraints)
-    new_state = state.assign_variable(example_variables[0], 1)
+    new_state = state._next_state(example_variables[0], 1)
     assert new_state.get_variable_by_name("A").get_value() == 1
     assert state.get_variable_by_name("A").get_value() is None
 

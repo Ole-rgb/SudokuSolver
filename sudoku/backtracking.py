@@ -121,17 +121,6 @@ class CSP(Generic[T]):
         self.__variables = variables
         self.__constraints = constraints
 
-    def _valid_state(self) -> bool:
-        if self.__constraints == None:
-            return True
-        for constraint in self.__constraints:
-            if not constraint.satisfied():
-                return False
-        return True
-
-    def _valid_solution(self) -> bool:
-        raise NotImplementedError("TODO overwrite to formulate goalcheck")
-
     def _get_variables(self) -> List[Variable[T]]:
         return self.__variables
 
@@ -143,6 +132,17 @@ class CSP(Generic[T]):
             if variable.get_variable_name() == variable_name:
                 return variable
         raise ValueError("variable name: {} doesnt exist".format(variable_name))
+
+    def _all_variables_assigned(self) -> bool:
+        for variable in self._get_variables():
+            if variable.value_is_assigned():
+                continue
+            return False
+
+        return True
+
+    def get_domain_of_variable(self, variable_name):
+        return self.get_variable_by_name(variable_name).get_domain()
 
     def __str__(self) -> str:
         res = "STATE:\n    Variables: \n"
@@ -164,30 +164,21 @@ class State(CSP, Generic[T]):
     ) -> None:
         super().__init__(variables, constraints)
 
-    def _valid_solution(self) -> bool:
+    def valid_solution(self) -> bool:
         return self._all_variables_assigned() and self.valid_state()
 
-    def _all_variables_assigned(self) -> bool:
-        for variable in self._get_variables():
-            if variable.value_is_assigned():
-                continue
-            return False
-
+    def valid_state(self) -> bool:
+        if self._get_constraints() == None:
+            return True
+        for constraint in self._get_constraints():
+            if not constraint.satisfied():
+                return False
         return True
 
-    def valid_state(self) -> bool:
-        return self._valid_state()
-
-    def _next_state(self):
-        raise NotImplementedError("TODO implement")
-
-    def assign_variable(self, variable: Variable[T], value: [T]):
+    def _next_state(self, variable: Variable[T], value: [T]):
         new_state = copy.deepcopy(self)
         new_state.get_variable_by_name(variable.get_variable_name()).set_value(value)
         return new_state
-
-    def get_domain_of_variable(self, variable_name):
-        return self.get_variable_by_name(variable_name).get_domain()
 
     def __str__(self) -> str:
         return super().__str__()
@@ -210,13 +201,13 @@ class Backtracking(Generic[T]):
         if root_state in seen:
             return None
 
-        if root_state._valid_solution():
+        if root_state.valid_solution():
             return root_state
 
         variable_to_assign = self.__variable_to_assign(root_state)
 
         for candidate in variable_to_assign.get_domain():
-            new_state = root_state.assign_variable(variable_to_assign, candidate)
+            new_state = root_state._next_state(variable_to_assign, candidate)
             if new_state.valid_state():
 
                 solution = self.__backtracking(new_state)
@@ -242,7 +233,7 @@ if __name__ == "__main__":
     v2 = Variable[int]("v2", None, [1, 2, 3])
     v3 = Variable[int]("v3", None, [1, 2])
     variables = [v1, v2, v3]
-    root_state = State[int](variables)  # TODO implement constraints that work properly
+    root_state = State[int](variables)
     backtracking = Backtracking(root_state)
     res = backtracking.solve()
 
