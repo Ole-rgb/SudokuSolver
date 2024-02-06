@@ -91,7 +91,7 @@ def test_simple_elemination_one_number():
         "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
     )
     solver.fill_in_candidates()
-    solver.simple_elimination()
+    solver.simple_elimination(solver.get_sudoku_grid())
 
     # first block, first row and first column should have candidates 2-9, except (0,0) = [1]
     assert solver.get_sudoku_grid().get_cell((0, 0)) == [
@@ -169,7 +169,7 @@ def test_simple_elemination_two_numbers_different_value_different_block_row_colu
         "100000000020000000000000000000000000000000000000000000000000000000000000000000000"
     )
     solver.fill_in_candidates()
-    solver.simple_elimination()
+    solver.simple_elimination(solver.get_sudoku_grid())
 
     # fixed values
     assert solver.get_sudoku_grid().get_cell((0, 0)) == [
@@ -242,7 +242,7 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
         "100000000000000000000000000000000001000000000000000000000000000000000000000000000"
     )
     solver.fill_in_candidates()
-    solver.simple_elimination()
+    solver.simple_elimination(solver.get_sudoku_grid())
 
     # fixed values
     assert solver.get_sudoku_grid().get_cell((0, 0)) == [
@@ -354,7 +354,7 @@ def test_simple_elemination_numbers_no_candidates():
         "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
     )
     assert (
-        solver.simple_elimination() == 0
+        solver.simple_elimination(solver.get_sudoku_grid()) == 0
     ), "there are no filled in candidates to remove"
 
 
@@ -364,7 +364,7 @@ def test_simple_elemination_numbers_removed_candidates():
     )
     solver.fill_in_candidates()  # 9 candidates in 80 cells 9*80
     assert (
-        solver.simple_elimination() == 20
+        solver.simple_elimination(solver.get_sudoku_grid()) == 20
     ), "should removed 1 from every cell in constraint houses"
 
 
@@ -373,7 +373,7 @@ def test_simple_elemination_numbers_same_value_different_row_different_block_dif
         "100000000000000000000000000000000000010000000000000000000000000000000000000000000"
     )
     solver.fill_in_candidates()
-    assert solver.simple_elimination() == 34
+    assert solver.simple_elimination(solver.get_sudoku_grid()) == 34
 
 
 def test_simple_elemination_numbers_different_value_different_row_different_block_different_column():
@@ -381,7 +381,7 @@ def test_simple_elemination_numbers_different_value_different_row_different_bloc
         "100000000000000000000000000000000000020000000000000000000000000000000000000000000"
     )
     solver.fill_in_candidates()
-    assert solver.simple_elimination() == 40
+    assert solver.simple_elimination(solver.get_sudoku_grid()) == 40
 
 
 def test_simple_elemination_two_iterations_second_empty():
@@ -389,8 +389,8 @@ def test_simple_elemination_two_iterations_second_empty():
         "100000000000000000000000000000000000020000000000000000000000000000000000000000000"
     )
     solver.fill_in_candidates()
-    assert solver.simple_elimination() == 40
-    assert solver.simple_elimination() == 0
+    assert solver.simple_elimination(solver.get_sudoku_grid()) == 40
+    assert solver.simple_elimination(solver.get_sudoku_grid()) == 0
 
 
 def test_simple_elemination_two_iterations_second_removes_values():
@@ -399,16 +399,16 @@ def test_simple_elemination_two_iterations_second_removes_values():
     )
     solver.fill_in_candidates()
     assert (
-        solver.simple_elimination() != 0
+        solver.simple_elimination(solver.get_sudoku_grid()) != 0
     ), "remove alot of candidates because everywhere [1,2,..,9]"
     assert (
-        solver.simple_elimination() != 0
+        solver.simple_elimination(solver.get_sudoku_grid()) != 0
     ), "can remove further, because 7th row has only one candidate for last cell"
     assert (
-        solver.simple_elimination() != 0
+        solver.simple_elimination(solver.get_sudoku_grid()) != 0
     ), "can remove further, because 1th row has only one candidate in last cell"
     assert (
-        solver.simple_elimination() == 0
+        solver.simple_elimination(solver.get_sudoku_grid()) == 0
     ), "cant remove further, no additional call has only one candidate."
 
 
@@ -463,7 +463,8 @@ def test_find_only_canidate_in_house_one_cell_rest_zeros():
     solver.get_sudoku_grid().set_cell((0, 0), [1, 2, 3])
 
     assert (
-        solver.find_only_canidate_in_house(1, all_blocks[0]) == 2
+        solver.find_only_canidate_in_house(solver.get_sudoku_grid(), 1, all_blocks[0])
+        == 2
     ), "removed 2 candidates"
     assert solver.get_sudoku_grid().get_cell((0, 0)) == [
         1
@@ -476,7 +477,10 @@ def test_find_only_canidate_in_house_no_removed():
     )
     solver.get_sudoku_grid().set_cell((0, 3), [1, 2, 3, 4, 5, 6])
 
-    assert solver.find_only_canidate_in_house(1, all_blocks[0]) == 0
+    assert (
+        solver.find_only_canidate_in_house(solver.get_sudoku_grid(), 1, all_blocks[0])
+        == 0
+    )
     assert np.array_equal(solver.get_sudoku_grid().get_cell((0, 3)), [1, 2, 3, 4, 5, 6])
 
 
@@ -491,12 +495,21 @@ def test_find_only_canidate_in_house_with_filled_candidates():
     solver.get_sudoku_grid().set_cell((0, 7), [6, 7, 8])
     solver.get_sudoku_grid().set_cell((0, 8), [6, 7, 8, 9])
 
-    assert solver.find_only_canidate_in_house(7, all_rows[0]) == 0
+    assert (
+        solver.find_only_canidate_in_house(solver.get_sudoku_grid(), 7, all_rows[0])
+        == 0
+    )
     assert np.array_equal(solver.get_sudoku_grid().get_cell((0, 8)), [6, 7, 8, 9])
 
-    assert solver.find_only_canidate_in_house(2, all_rows[0]) == 0
+    assert (
+        solver.find_only_canidate_in_house(solver.get_sudoku_grid(), 2, all_rows[0])
+        == 0
+    )
 
-    assert solver.find_only_canidate_in_house(9, all_rows[0]) == 3
+    assert (
+        solver.find_only_canidate_in_house(solver.get_sudoku_grid(), 9, all_rows[0])
+        == 3
+    )
     assert np.array_equal(solver.get_sudoku_grid().get_cell((0, 8)), [9])
 
 
@@ -506,7 +519,7 @@ def test_hidden_single_no_removes():
     )
     solver.fill_in_candidates()
 
-    assert solver.hidden_single() == 0
+    assert solver.hidden_single(solver.get_sudoku_grid()) == 0
 
 
 def test_hidden_single_one_cell():
@@ -519,7 +532,7 @@ def test_hidden_single_one_cell():
     solver.get_sudoku_grid().set_cell((0, 6), [6, 7, 9])
     solver.get_sudoku_grid().set_cell((0, 7), [6, 7, 9])
     solver.get_sudoku_grid().set_cell((0, 8), [6, 7, 8])
-    assert solver.hidden_single() == 2
+    assert solver.hidden_single(solver.get_sudoku_grid()) == 2
     assert np.array_equal(solver.get_sudoku_grid().get_cell((0, 8)), [8])
 
 
@@ -538,6 +551,6 @@ def test_hidden_single_two_cell():
     solver.get_sudoku_grid().set_cell((6, 7), [2, 8, 7])
     solver.get_sudoku_grid().set_cell((6, 8), [2, 8])
 
-    assert solver.hidden_single() == 3
+    assert solver.hidden_single(solver.get_sudoku_grid()) == 3
     assert np.array_equal(solver.get_sudoku_grid().get_cell((6, 7)), [7])
     assert np.array_equal(solver.get_sudoku_grid().get_cell((0, 7)), [7])

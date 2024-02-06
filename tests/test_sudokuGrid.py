@@ -25,6 +25,13 @@ def test_grid_values():
     assert isinstance(grid.get_cell((0, 0)), list)
 
 
+def test_grid_iterable():
+    grid = SudokuGrid()
+    for cell in grid:
+        assert isinstance(cell, list)
+        assert cell == [0]
+
+
 def test_default_grid_values():
     grid = SudokuGrid()
     for column in range(1, COLUMNS):
