@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Union, Tuple, List
+from typing import Union, Tuple, List, Set
 from sudoku.sudokuGrid import SudokuGrid, ROWS, COLUMNS, DIGITS
 from sudoku.backtracking import Variable, Constraint, CONSTRAINT, State, Backtracking
 import time
@@ -98,7 +98,7 @@ class SudokuSolver:
                 cell = grid.get_cell((row, column))
                 if len(cell) == 1 and cell == [0]:
                     candidates = list(range(1, DIGITS))
-                    grid.set_cell((row, column), np.array(candidates, dtype=np.uint8))
+                    grid.set_cell((row, column), candidates)
 
     def __remove_candidate_from_house(
         self,
@@ -152,7 +152,7 @@ class SudokuSolver:
         )
         return (filtered_array, removed)
 
-    def simple_elimination(self) -> int:
+    def simple_elimination(self, grid: SudokuGrid) -> int:
         """
         Applies the simple elimination technique to remove candidates for unassigned cells.
         If there is one number in a cell - remove it from the candidates of the other cells in the house
@@ -161,7 +161,6 @@ class SudokuSolver:
         - int: number of removed candidates
         """
         report = 0
-        grid = self.get_sudoku_grid()
         for house in all_houses:
             for cell_position in house:
                 cell = grid.get_cell(cell_position)
@@ -172,17 +171,19 @@ class SudokuSolver:
                     )
         return report
 
-    def hidden_single(self) -> int:
+    def hidden_single(self, grid) -> int:
         # if there is only one instance of a candidate in house - keep only it
 
         removed = 0
         for house in all_houses:
             for candidate in range(1, DIGITS):
-                removed += self.find_only_canidate_in_house(candidate, house)
+                removed += self.find_only_canidate_in_house(grid, candidate, house)
         return removed
 
-    def find_only_canidate_in_house(self, candidate: int, house: Tuple[int, int]):
-        grid = self.get_sudoku_grid()
+    def find_only_canidate_in_house(
+        self, grid: SudokuGrid, candidate: int, house: Tuple[int, int]
+    ):
+
         removed = 0
         count = 0
         cell_to_clean = (None, None)
@@ -199,7 +200,7 @@ class SudokuSolver:
         ):
             # only one instance of the candidate found
             removed = len(grid.get_cell(cell_to_clean)) - 1
-            grid.set_cell(cell_to_clean, np.array([candidate]))
+            grid.set_cell(cell_to_clean, [candidate])
         return removed
 
     def get_sudoku_grid(self) -> SudokuGrid:
@@ -214,6 +215,18 @@ class SudokuSolver:
     def set_sudoku_grid(self, grid: SudokuGrid):
         self.__grid = grid
 
+    def logical_deduction(self, grid: SudokuGrid):
+        # if simple elimination cant do further deduction set hidden singles try.
+        # if hidden single found a deduction set simple elimination look and so on
+        while True:
+            removed = self.simple_elimination(grid)
+            print_debug("simple elimination removed: {} candidates".format(removed))
+            if removed == 0:
+                removed += self.hidden_single(grid)
+                print_debug("hidden single removed: {} candidates".format(removed))
+            if removed == 0:
+                break
+
     def solve_soduku(self, options=None) -> float:
         start_time = time.time()
 
@@ -223,15 +236,10 @@ class SudokuSolver:
 
         self.fill_in_candidates()
 
-        # keep eliminating if possible
-        while True:
-            removed_candidates = self.simple_elimination()
-            print_debug(removed_candidates)
-            if removed_candidates == 0:
-                break
+        self.logical_deduction(self.get_sudoku_grid())
 
         print_debug("")
-        print_debug("One iteration of simple elimination:")
+        print_debug("After logical deduction:")
         print_debug(self)
 
         state = SudokuCSPAdapter.soduku_to_init_state(self.get_sudoku_grid())
@@ -356,8 +364,13 @@ if __name__ == "__main__":
     hard_sudoku = "805000002000901000300000000060700400200050000000000060000380000010000900040000070"
     other_hard_sudoku = "805000002000901000300000000060700400200050000000000060000380000040000700010000090"
     easy_sudoku = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
-    s = SudokuSolver(
-        "123456700000000000000000000000008000000000000000000000391540600000000000000000000"
-    )
+    s = SudokuSolver(hard_sudoku)
+    s.fill_in_candidates()
+    # s.logical_deduction()
 
-    print("Time passed: {}seconds".format(s.solve_soduku()))
+    # s2 = SudokuCSP(s.get_sudoku_grid())
+    # start_time = time.time()
+    # print(s.get_sudoku_grid())
+    # print(s2.backtracking(s.get_sudoku_grid()))
+    # end_time = time.time()
+    # print(end_time - start_time)
