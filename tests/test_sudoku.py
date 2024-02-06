@@ -22,34 +22,34 @@ def test_fill_in_candidates_normal_sudoku():
     solver.fill_in_candidates()
 
     assert np.array_equal(
-        grid.get_cell((0, 0)), np.array([5])
+        grid.get_cell((0, 0)), [5]
     ), "first element in the first row is 5"
     assert np.array_equal(
-        grid.get_cell((0, 1)), np.array([3])
+        grid.get_cell((0, 1)), [3]
     ), "second entry in the first row is 3"
     assert np.array_equal(
-        grid.get_cell((0, 2)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        grid.get_cell((0, 2)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "third element in the first row is 0 -> [0,...,9]"
     assert np.array_equal(
-        grid.get_cell((0, 3)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        grid.get_cell((0, 3)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "forth element in the first row is 0 -> [0,...,9]"
     assert np.array_equal(
-        grid.get_cell((0, 4)), np.array([7])
+        grid.get_cell((0, 4)), [7]
     ), "fifth element in the first row should be 7"
     assert np.array_equal(
-        grid.get_cell((0, 5)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        grid.get_cell((0, 5)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "sixth element in the first row is 0 -> [0,...,9]"
     assert np.array_equal(
-        grid.get_cell((1, 0)), np.array([6])
+        grid.get_cell((1, 0)), [6]
     ), "first element in the second row should be 6"
     assert np.array_equal(
-        grid.get_cell((1, 1)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        grid.get_cell((1, 1)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "second element in the second row is 0 -> [0,...,9]"
     assert np.array_equal(
-        grid.get_cell((1, 2)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        grid.get_cell((1, 2)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "third element in the second row is 0 -> [0,...,9]"
     assert np.array_equal(
-        grid.get_cell((1, 3)), np.array([1])
+        grid.get_cell((1, 3)), [1]
     ), "third element in the second row should be 1"
 
 
@@ -94,16 +94,16 @@ def test_simple_elemination_one_number():
     solver.simple_elimination()
 
     # first block, first row and first column should have candidates 2-9, except (0,0) = [1]
-    assert (
-        solver.get_sudoku_grid().get_cell((0, 0)) == 1
-    ), "fixed value 1 shouldnt be changed"
+    assert solver.get_sudoku_grid().get_cell((0, 0)) == [
+        1
+    ], "fixed value 1 shouldnt be changed"
 
     for row, column in all_rows[0]:
         if (row, column) == (0, 0):
             continue
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((row, column)),
-            np.array([2, 3, 4, 5, 6, 7, 8, 9]),
+            [2, 3, 4, 5, 6, 7, 8, 9],
         ), "first row (starting at the second cell) should have the candidates 1-9 without the 1"
 
     for row, column in all_columns[0]:
@@ -111,7 +111,7 @@ def test_simple_elemination_one_number():
             continue
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((row, column)),
-            np.array([2, 3, 4, 5, 6, 7, 8, 9]),
+            [2, 3, 4, 5, 6, 7, 8, 9],
         ), "first column (starting at the second cell) should have the candidates 1-9 without the 1"
 
     for row, column in all_blocks[0]:
@@ -119,48 +119,48 @@ def test_simple_elemination_one_number():
             continue
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((row, column)),
-            np.array([2, 3, 4, 5, 6, 7, 8, 9]),
+            [2, 3, 4, 5, 6, 7, 8, 9],
         ), "first block (starting at the second cell) should have the candidates 1-9 without the 1"
 
     for column in range(3, 9):
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((1, column)),
-            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
         ), "the second row should still have all candidates"
     for column in range(3, 9):
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((2, column)),
-            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
         ), "the thrid should still have all candidates"
     for column in range(1, 9):
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((3, column)),
-            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
         ), "the fourth should still have all candidates"
     for column in range(1, 9):
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((4, column)),
-            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
         ), "the fifth should still have all candidates"
     for column in range(1, 9):
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((5, column)),
-            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
         ), "the sixth should still have all candidates"
     for column in range(1, 9):
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((6, column)),
-            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
         ), "the seventh should still have all candidates"
     for column in range(1, 9):
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((7, column)),
-            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
         ), "the eighth should still have all candidates"
     for column in range(1, 9):
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((8, column)),
-            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
         ), "the ninth should still have all candidates"
 
 
@@ -172,20 +172,20 @@ def test_simple_elemination_two_numbers_different_value_different_block_row_colu
     solver.simple_elimination()
 
     # fixed values
-    assert (
-        solver.get_sudoku_grid().get_cell((0, 0)) == 1
-    ), "fixed value 1 shouldnt be changed"
+    assert solver.get_sudoku_grid().get_cell((0, 0)) == [
+        1
+    ], "fixed value 1 shouldnt be changed"
 
-    assert (
-        solver.get_sudoku_grid().get_cell((1, 1)) == 2
-    ), "fixed value 2 shouldnt be changed"
+    assert solver.get_sudoku_grid().get_cell((1, 1)) == [
+        2
+    ], "fixed value 2 shouldnt be changed"
 
     for row, column in all_blocks[0]:
         if (row, column) == (0, 0) or (row, column) == (1, 1):
             continue
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((row, column)),
-            np.array([3, 4, 5, 6, 7, 8, 9]),
+            [3, 4, 5, 6, 7, 8, 9],
         ), "first block should have the candidates 1-9 without 1 and 2"
 
     for row, column in all_rows[0]:
@@ -194,12 +194,12 @@ def test_simple_elemination_two_numbers_different_value_different_block_row_colu
         elif column < 3:
             assert np.array_equal(
                 solver.get_sudoku_grid().get_cell((row, column)),
-                np.array([3, 4, 5, 6, 7, 8, 9]),
+                [3, 4, 5, 6, 7, 8, 9],
             ), "cells in the first block should have the candidates 1-9 without 1 and 2"
         else:
             assert np.array_equal(
                 solver.get_sudoku_grid().get_cell((row, column)),
-                np.array([2, 3, 4, 5, 6, 7, 8, 9]),
+                [2, 3, 4, 5, 6, 7, 8, 9],
             ), "cells in the first row but not in the first block should have the candidates 1-9 without 1"
 
     for row, column in all_rows[1]:
@@ -208,24 +208,24 @@ def test_simple_elemination_two_numbers_different_value_different_block_row_colu
         elif column < 3:
             assert np.array_equal(
                 solver.get_sudoku_grid().get_cell((row, column)),
-                np.array([3, 4, 5, 6, 7, 8, 9]),
+                [3, 4, 5, 6, 7, 8, 9],
             ), "cells in the first block should have the candidates 1-9 without 1 and 2"
         else:
             assert np.array_equal(
                 solver.get_sudoku_grid().get_cell((row, column)),
-                np.array([1, 3, 4, 5, 6, 7, 8, 9]),
+                [1, 3, 4, 5, 6, 7, 8, 9],
             ), "cells in the second row but not in the first block should have the candidates 1-9 without 2"
 
     for row, column in all_rows[2]:
         if column < 3:
             assert np.array_equal(
                 solver.get_sudoku_grid().get_cell((row, column)),
-                np.array([3, 4, 5, 6, 7, 8, 9]),
+                [3, 4, 5, 6, 7, 8, 9],
             ), "cells in the third block should have the candidates 1-9 without 1 and 2"
         else:
             assert np.array_equal(
                 solver.get_sudoku_grid().get_cell((row, column)),
-                np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+                [1, 2, 3, 4, 5, 6, 7, 8, 9],
             ), "cells in the third row but not in the first block should have the candidates 1-9"
 
     # i dont want to test all cells so we just do sample cells
@@ -245,20 +245,20 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
     solver.simple_elimination()
 
     # fixed values
-    assert (
-        solver.get_sudoku_grid().get_cell((0, 0)) == 1
-    ), "fixed value 1 at location (3, 8) shouldnt be changed"
+    assert solver.get_sudoku_grid().get_cell((0, 0)) == [
+        1
+    ], "fixed value 1 at location (3, 8) shouldnt be changed"
 
-    assert (
-        solver.get_sudoku_grid().get_cell((3, 8)) == 1
-    ), "fixed value 1 at location (3, 8) shouldnt be changed"
+    assert solver.get_sudoku_grid().get_cell((3, 8)) == [
+        1
+    ], "fixed value 1 at location (3, 8) shouldnt be changed"
 
     for row, column in all_blocks[0]:
         if (row, column) == (0, 0):
             continue
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((row, column)),
-            np.array([2, 3, 4, 5, 6, 7, 8, 9]),
+            [2, 3, 4, 5, 6, 7, 8, 9],
         ), "first block should have the candidates 1-9 without 1"
 
     for row, column in all_blocks[5]:
@@ -266,7 +266,7 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
             continue
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((row, column)),
-            np.array([2, 3, 4, 5, 6, 7, 8, 9]),
+            [2, 3, 4, 5, 6, 7, 8, 9],
         ), "fifth block should have the candidates 1-9 without 1"
 
     for row, column in all_rows[0]:
@@ -274,7 +274,7 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
             continue
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((row, column)),
-            np.array([2, 3, 4, 5, 6, 7, 8, 9]),
+            [2, 3, 4, 5, 6, 7, 8, 9],
         ), "first row (starting at the second cell) should have the candidates 1-9 without the 1"
 
     for row, column in all_rows[3]:
@@ -282,7 +282,7 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
             continue
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((row, column)),
-            np.array([2, 3, 4, 5, 6, 7, 8, 9]),
+            [2, 3, 4, 5, 6, 7, 8, 9],
         ), "forth row (starting at the second cell) should have the candidates 1-9 without the 1"
 
     for row, column in all_columns[0]:
@@ -290,7 +290,7 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
             continue
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((row, column)),
-            np.array([2, 3, 4, 5, 6, 7, 8, 9]),
+            [2, 3, 4, 5, 6, 7, 8, 9],
         ), "first column (starting at the second cell) should have the candidates 1-9 without the 1"
 
     for row, column in all_columns[8]:
@@ -298,54 +298,54 @@ def test_simple_elemination_two_numbers_some_value_different_block_row_column():
             continue
         assert np.array_equal(
             solver.get_sudoku_grid().get_cell((row, column)),
-            np.array([2, 3, 4, 5, 6, 7, 8, 9]),
+            [2, 3, 4, 5, 6, 7, 8, 9],
         ), "the last column (starting at the second cell) should have the candidates 1-9 without the 1"
 
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((1, 5)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((1, 5)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(1, 5) should have all candidates"
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((2, 5)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((2, 5)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(2, 5) should have all candidates"
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((3, 5)), np.array([2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((3, 5)), [2, 3, 4, 5, 6, 7, 8, 9]
     ), "(3, 5) shouldnt have 1 because row==3"
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((4, 5)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((4, 5)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(4, 5) should have all candidates"
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((5, 5)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((5, 5)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(5, 5) should have all candidates"
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((6, 5)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((6, 5)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(6, 5) should have all candidates"
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((7, 5)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((7, 5)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(7, 5) should have all candidates"
 
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((1, 7)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((1, 7)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(1, 7) should have all candidates"
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((2, 7)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((2, 7)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(2, 7) should have all candidates"
     assert not np.array_equal(
-        solver.get_sudoku_grid().get_cell((3, 7)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((3, 7)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(3, 7) shouldnt have all candidates [-1]"
     assert not np.array_equal(
-        solver.get_sudoku_grid().get_cell((4, 7)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((4, 7)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(4, 7) shouldnt have all candidates [-1]"
     assert not np.array_equal(
-        solver.get_sudoku_grid().get_cell((5, 7)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((5, 7)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(5, 7) shouldnt have all candidates [-1]"
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((6, 7)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((6, 7)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(6, 7) should have all candidates"
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((7, 7)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((7, 7)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(7, 7) should have all candidates"
     assert np.array_equal(
-        solver.get_sudoku_grid().get_cell((8, 7)), np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        solver.get_sudoku_grid().get_cell((8, 7)), [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ), "(8, 7) should have all candidates"
 
 

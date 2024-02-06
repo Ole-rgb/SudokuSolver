@@ -22,9 +22,7 @@ def test_grid_size():
 
 def test_grid_values():
     grid = SudokuGrid()
-    assert (
-        type(grid.get_cell((0, 0))) == np.ndarray
-    ), "Should have the type of np.ndarray"
+    assert isinstance(grid.get_cell((0, 0)), list)
 
 
 def test_default_grid_values():
@@ -205,7 +203,7 @@ def test_all_blocks():
 
 def test_set_cell():
     grid = SudokuGrid()
-    new_value = np.array([1, 2, 3], dtype=np.ndarray)
+    new_value = [1, 2, 3]
 
     assert grid.get_cell((1, 0)) == [0]
 
@@ -223,7 +221,7 @@ def test_set_cell():
 def test_set_cell_out_of_positive_bounds():
     MSG = "index 9 is out of bounds for axis 0 with size 9"
     grid = SudokuGrid()
-    new_value = np.array([1, 2, 3], dtype=np.ndarray)
+    new_value = [1, 2, 3]
     with pytest.raises(IndexError, match=MSG):
         grid.set_cell((9, 0), new_value)
     with pytest.raises(IndexError, match=MSG):
@@ -237,7 +235,7 @@ def test_set_cell_out_of_positive_bounds():
 
 def test_set_cell_out_of_negative_bounds():
     grid = SudokuGrid()
-    new_value = np.array([1, 2, 3], dtype=np.ndarray)
+    new_value = [1, 2, 3]
 
     with pytest.raises(
         IndexError, match=re.escape("out of bounds for position (-1,0)")
@@ -258,7 +256,7 @@ def test_set_cell_out_of_negative_bounds():
 
 def test_get_cell():
     grid = SudokuGrid()
-    new_value = np.array([1, 2, 3], dtype=np.ndarray)
+    new_value = [1, 2, 3]
     grid.set_cell((1, 0), new_value)
 
     assert grid.get_cell((0, 0)) == [0] and grid.get_cell((3, 3)) == [

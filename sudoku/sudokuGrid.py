@@ -49,7 +49,7 @@ class SudokuGrid:
         else:
             for row in range(ROWS):
                 for column in range(COLUMNS):
-                    grid[row, column] = np.array([0], dtype=np.uint8)
+                    grid[row, column] = [0]
 
             self.__grid = grid
 
@@ -78,7 +78,7 @@ class SudokuGrid:
         row, column = 0, 0
         try:
             for cell_char in grid_str:
-                grid[row][column] = np.array([int(cell_char)], dtype=np.uint8)
+                grid[row][column] = [int(cell_char)]
 
                 if column + 1 == COLUMNS:
                     row += 1
@@ -93,14 +93,14 @@ class SudokuGrid:
 
         return grid
 
-    def get_cell(self, position: Tuple[int, int]) -> np.ndarray:
+    def get_cell(self, position: Tuple[int, int]) -> []:
         row, column = position
         if row < 0 or column < 0:
             raise IndexError("out of bounds for position ({},{})".format(row, column))
 
         return self.__get_grid()[row][column]
 
-    def set_cell(self, position: Tuple[int, int], new_value: np.ndarray) -> None:
+    def set_cell(self, position: Tuple[int, int], new_value: list) -> None:
         row, column = position
         if row < 0 or column < 0:
             raise IndexError("out of bounds for position ({},{})".format(row, column))
