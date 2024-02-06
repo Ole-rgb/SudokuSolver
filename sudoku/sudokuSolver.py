@@ -2,6 +2,9 @@ import numpy as np
 from typing import Union, Tuple, List
 from sudoku.sudokuGrid import SudokuGrid, ROWS, COLUMNS, DIGITS
 from sudoku.backtracking import Variable, Constraint, CONSTRAINT, State, Backtracking
+import time
+
+DEBUG = True
 
 # same for rows
 all_rows = [[(row, column) for column in range(COLUMNS)] for row in range(ROWS)]
@@ -21,6 +24,11 @@ all_blocks = [
 
 # combine three
 all_houses = all_columns + all_rows + all_blocks
+
+
+def print_debug(msg):
+    if DEBUG:
+        print("***** {} *****".format(msg))
 
 
 class SudokuSolver:
@@ -76,23 +84,25 @@ class SudokuSolver:
         """
         self.__grid = SudokuGrid(grid_str)
 
-    def simple_elimination(self):
+    def simple_elimination(self) -> int:
         """
         Applies the simple elimination technique to remove candidates for unassigned cells.
         If there is one number in a cell - remove it from the candidates of the other cells in the house
 
         Returns:
-        - None
+        - int: number of removed candidates
         """
+        report = 0
         grid = self.get_sudoku_grid()
         for house in all_houses:
             for cell_position in house:
                 cell = grid.get_cell(cell_position)
                 if len(cell) == 1:
                     value_to_remove = cell[0]
-                    self.remove_candidate_from_house(
+                    report += self.remove_candidate_from_house(
                         house, cell_position, value_to_remove
                     )
+        return report
 
     def fill_in_candidates(self) -> None:
         """
@@ -106,7 +116,7 @@ class SudokuSolver:
         for row in range(rows):
             for column in range(columns):
                 cell = grid.get_cell((row, column))
-                if cell == [0]:
+                if len(cell) == 1 and cell == [0]:
                     candidates = list(range(1, DIGITS))
                     grid.set_cell((row, column), np.array(candidates, dtype=np.uint8))
 
@@ -115,7 +125,7 @@ class SudokuSolver:
         house: list(Tuple[int, int]),
         cell_position: Tuple[int, int],
         value_to_remove: int,
-    ):
+    ) -> int:
         """
         Removes the specified value from the candidates of other cells in the given house.
 
@@ -125,23 +135,26 @@ class SudokuSolver:
         - value_to_remove (int): The value to be removed from other cells in the house.
 
         Returns:
-        - None
+        - int: number of removed candidates
         """
+        report = 0
         for other_cell_position in house:
             if (
                 other_cell_position != cell_position
                 and value_to_remove
                 in self.get_sudoku_grid().get_cell(other_cell_position)
             ):
-                updated_candidates = self.remove_element(
+                updated_candidates, removed = self.remove_element(
                     self.get_sudoku_grid().get_cell(other_cell_position),
                     value_to_remove,
                 )
+                report += removed
                 self.get_sudoku_grid().set_cell(other_cell_position, updated_candidates)
+        return report
 
     def remove_element(
         self, arr: np.ndarray, value_to_remove: Union[1, 2, 3, 4, 5, 6, 7, 8, 9]
-    ) -> np.ndarray:
+    ) -> Tuple[np.ndarray, int]:
         """
         Removes a specified value from the given NumPy array.
 
@@ -152,7 +165,12 @@ class SudokuSolver:
         Returns:
         - np.ndarray: The modified NumPy array.
         """
-        return arr[arr != value_to_remove]
+        number_of_candiates = len(arr)
+
+        arr = arr[arr != value_to_remove]
+
+        report = number_of_candiates - len(arr)
+        return (arr, report)
 
     def get_sudoku_grid(self) -> SudokuGrid:
         """
@@ -163,15 +181,77 @@ class SudokuSolver:
         """
         return self.__grid
 
-    def soduku_to_init_state(self):
+    def set_sudoku_grid(self, grid: SudokuGrid):
+        self.__grid = grid
+
+    def solve_soduku(self, options=None) -> float:
+        start_time = time.time()
+
+        print_debug("Started Sudoku Solver")
+        print_debug("Sudoku given: ")
+        print_debug(self)
+
+        self.fill_in_candidates()
+
+        while True:
+            removed_candidates = self.simple_elimination()
+            print_debug(removed_candidates)
+            if removed_candidates == 0:
+                break
+
+        print_debug("")
+        print_debug("One iteration of simple elimination:")
+        print_debug(self)
+
+        state = SudokuCSPAdapter.soduku_to_init_state(self.get_sudoku_grid())
+        backtracking = Backtracking(state)
+        print_debug("")
+        print_debug("Started backtracking, searching for solution:")
+        solve = backtracking.solve()
+
+        if solve == None:
+            print_debug("NO SOLUTION")
+            return
+
+        print_debug("SOLUTION FOUND:")
+        self.set_sudoku_grid(SudokuCSPAdapter.state_to_grid(solve))
+        print_debug("Sudoku string: {}".format(solve))
+
+        print_debug(self)
+
+        end_time = time.time()
+        return end_time - start_time
+
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the Sudoku puzzle.
+
+        Returns:
+        - str: The string representation of the Sudoku puzzle.
+        """
+        return self.get_sudoku_grid().__str__()
+
+
+class SudokuCSPAdapter:
+    @staticmethod
+    def state_to_grid(state: State) -> SudokuGrid:
+        return SudokuGrid(state.__str__())
+
+    @staticmethod
+    def soduku_to_init_state(sudoku_grid: SudokuGrid) -> State[int]:
         ## need a method generate next state
-        variables: List[Variable[int]] = self.__cells_to_variables()
-        constraints: List[Constraint] = self.__generate_sudoku_constraints(variables)
+        variables: List[Variable[int]] = SudokuCSPAdapter.__cells_to_variables(
+            sudoku_grid
+        )
+        constraints: List[Constraint] = SudokuCSPAdapter.__generate_sudoku_constraints(
+            variables
+        )
 
         return State(variables, constraints)
 
+    @staticmethod
     def __generate_sudoku_constraints(
-        self, variables: List[Variable[int]]
+        variables: List[Variable[int]],
     ) -> List[Constraint]:
         constraints: List[Constraint] = []
         # Generate constraints for each row
@@ -219,12 +299,13 @@ class SudokuSolver:
 
         return constraints
 
-    def __cells_to_variables(self) -> List[Variable[int]]:
+    @staticmethod
+    def __cells_to_variables(sudoku_grid: SudokuGrid) -> List[Variable[int]]:
         # TODO implement np.ndarray in backtracking
         variables: List[Variable[int]] = []
         for row in all_rows:
             for cell_position in row:
-                cell = self.get_sudoku_grid().get_cell(cell_position)
+                cell = sudoku_grid.get_cell(cell_position)
                 candidates: List[int] = []
                 value = None
 
@@ -236,47 +317,13 @@ class SudokuSolver:
                 variables.append(
                     Variable[int]("{}".format(cell_position), value, candidates)
                 )
-
-        # for index, cell in enumerate(self.get_sudoku_grid()):
-        #     # np.array(list(range(1, DIGITS)), dtype=np.uint8)
-        #     candidates: List[int] = []
-        #     value = None
-        #     for candidate in cell:
-        #         candidates.append(candidate)
-        #     if len(cell) == 1:
-        #         value = cell[0]
-        #         # np.array([value], dtype=np.uint8)
-        #         candidates = [value]
-        #     variables.append(Variable[int](index, value, candidates))
         return variables
-
-    def __str__(self) -> str:
-        """
-        Returns a string representation of the Sudoku puzzle.
-
-        Returns:
-        - str: The string representation of the Sudoku puzzle.
-        """
-        return self.get_sudoku_grid().__str__()
 
 
 if __name__ == "__main__":
-    sudoku_str = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
-    s = SudokuSolver(sudoku_str)
-    print("Sudoku to solve: {}".format(sudoku_str))
-    print(s)
+    hard_sudoku = "805000002000901000300000000060700400200050000000000060000380000010000900040000070"
+    other_hard_sudoku = "805000002000901000300000000060700400200050000000000060000380000040000700010000090"
+    easy_sudoku = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
+    s = SudokuSolver(other_hard_sudoku)
 
-    s.get_sudoku_grid()
-    s.fill_in_candidates()
-    s.simple_elimination()
-    state = s.soduku_to_init_state()
-    backtracking = Backtracking(state)
-    solve = backtracking.solve()
-
-    if solve == None:
-        print("NO SOLUTION")
-    else:
-        print("SOLVED:")
-        print(solve)
-        solved_grid = SudokuGrid(solve.__str__())
-        print(solved_grid)
+    print("Time passed: {}seconds".format(s.solve_soduku()))

@@ -53,6 +53,19 @@ def test_fill_in_candidates_normal_sudoku():
     ), "third element in the second row should be 1"
 
 
+def test_fill_in_candidates_two_iterations_shouldnt_fail():
+    """
+    Every 0 gets replaces with the numbers from 1 to 9
+    Every numbers that is not 0 is a filled in number and therefore immutable
+    """
+    grid_string = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
+
+    solver = SudokuSolver(grid_string)
+    grid = solver.get_sudoku_grid()
+    solver.fill_in_candidates()
+    solver.fill_in_candidates()
+
+
 def test_fill_in_candidates_easy_sudoku():
     sudoku_solver = SudokuSolver(
         "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
