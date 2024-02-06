@@ -111,6 +111,14 @@ class Constraint:
         if self.__constraint == CONSTRAINT.NOT_EQUALS:
             return self.__v1.get_value() != self.__v2.get_value()
 
+    def __str__(self) -> str:
+        # returns string of variable assignments
+        res = ""
+        res += self.__v1.__str__()
+        res += self.__v2.__str__()
+        res += self.__constraint.name
+        return res
+
 
 class CSP(Generic[T]):
     def __init__(
@@ -181,7 +189,11 @@ class State(CSP, Generic[T]):
         return new_state
 
     def __str__(self) -> str:
-        return super().__str__()
+        res = ""
+        for variable in self._get_variables():
+            res += variable.get_value().__str__()
+
+        return res
 
 
 class Backtracking(Generic[T]):

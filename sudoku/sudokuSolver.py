@@ -1,6 +1,7 @@
 import numpy as np
-from typing import Union, Tuple
+from typing import Union, Tuple, List
 from sudoku.sudokuGrid import SudokuGrid, ROWS, COLUMNS, DIGITS
+from sudoku.backtracking import Variable, Constraint, CONSTRAINT, State, Backtracking
 
 # same for rows
 all_rows = [[(row, column) for column in range(COLUMNS)] for row in range(ROWS)]
@@ -162,6 +163,93 @@ class SudokuSolver:
         """
         return self.__grid
 
+    def soduku_to_init_state(self):
+        ## need a method generate next state
+        variables: List[Variable[int]] = self.__cells_to_variables()
+        constraints: List[Constraint] = self.__generate_sudoku_constraints(variables)
+
+        return State(variables, constraints)
+
+    def __generate_sudoku_constraints(
+        self, variables: List[Variable[int]]
+    ) -> List[Constraint]:
+        constraints: List[Constraint] = []
+        # Generate constraints for each row
+        variable_positions = [variable.get_variable_name() for variable in variables]
+
+        for row in range(9):
+            for col1 in range(8):
+                for col2 in range(col1 + 1, 9):
+                    v1 = variables[
+                        variable_positions.index("({}, {})".format(row, col1))
+                    ]
+                    v2 = variables[
+                        variable_positions.index("({}, {})".format(row, col2))
+                    ]
+                    constraints.append(Constraint(v1, v2, CONSTRAINT.NOT_EQUALS))
+
+        # Generate constraints for each column
+        for col in range(9):
+            for row1 in range(8):
+                for row2 in range(row1 + 1, 9):
+                    v1 = variables[
+                        variable_positions.index("({}, {})".format(row1, col))
+                    ]
+                    v2 = variables[
+                        variable_positions.index("({}, {})".format(row2, col))
+                    ]
+                    constraints.append(Constraint(v1, v2, CONSTRAINT.NOT_EQUALS))
+
+        # Generate constraints for each 3x3 subgrid
+        for start_row in range(0, 9, 3):
+            for start_col in range(0, 9, 3):
+                for i in range(8):
+                    for j in range(i + 1, 9):
+                        v1 = variables[
+                            variable_positions.index(
+                                "({}, {})".format(start_row + i // 3, start_col + i % 3)
+                            )
+                        ]
+                        v2 = variables[
+                            variable_positions.index(
+                                "({}, {})".format(start_row + j // 3, start_col + j % 3)
+                            )
+                        ]
+                        constraints.append(Constraint(v1, v2, CONSTRAINT.NOT_EQUALS))
+
+        return constraints
+
+    def __cells_to_variables(self) -> List[Variable[int]]:
+        # TODO implement np.ndarray in backtracking
+        variables: List[Variable[int]] = []
+        for row in all_rows:
+            for cell_position in row:
+                cell = self.get_sudoku_grid().get_cell(cell_position)
+                candidates: List[int] = []
+                value = None
+
+                for candidate in cell:
+                    candidates.append(int(candidate))
+                if len(cell) == 1:
+                    value = cell[0]
+                    candidates = [value]
+                variables.append(
+                    Variable[int]("{}".format(cell_position), value, candidates)
+                )
+
+        # for index, cell in enumerate(self.get_sudoku_grid()):
+        #     # np.array(list(range(1, DIGITS)), dtype=np.uint8)
+        #     candidates: List[int] = []
+        #     value = None
+        #     for candidate in cell:
+        #         candidates.append(candidate)
+        #     if len(cell) == 1:
+        #         value = cell[0]
+        #         # np.array([value], dtype=np.uint8)
+        #         candidates = [value]
+        #     variables.append(Variable[int](index, value, candidates))
+        return variables
+
     def __str__(self) -> str:
         """
         Returns a string representation of the Sudoku puzzle.
@@ -173,10 +261,22 @@ class SudokuSolver:
 
 
 if __name__ == "__main__":
-    s = SudokuSolver(
-        "100000000000000000000000000000000000000000000000000000000000000000000000000000000"
-    )
-    s.get_sudoku_grid()  # .fill_in_candidates()
-    # s.simple_elimination()
-
+    sudoku_str = "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
+    s = SudokuSolver(sudoku_str)
+    print("Sudoku to solve: {}".format(sudoku_str))
     print(s)
+
+    s.get_sudoku_grid()
+    s.fill_in_candidates()
+    s.simple_elimination()
+    state = s.soduku_to_init_state()
+    backtracking = Backtracking(state)
+    solve = backtracking.solve()
+
+    if solve == None:
+        print("NO SOLUTION")
+    else:
+        print("SOLVED:")
+        print(solve)
+        solved_grid = SudokuGrid(solve.__str__())
+        print(solved_grid)
