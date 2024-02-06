@@ -127,6 +127,15 @@ class SudokuGrid:
                 to_remove += len(self.get_cell((row, column))) - 1
         return to_remove
 
+    def sum_of_unassigned_variables(self):
+        unassigned_variables = 0
+        for row in range(1, ROWS):
+            for column in range(1, COLUMNS):
+                if len(self.get_cell((row, column))) == 1:
+                    continue
+                unassigned_variables += 1
+        return unassigned_variables
+
     def __next__(self) -> list:
         rows, columns = self.__iterator
 
