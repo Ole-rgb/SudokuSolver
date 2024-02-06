@@ -201,6 +201,28 @@ def test_all_blocks():
     ], "the last block should be the block on the bottom right"
 
 
+def test_set_cell_length_equals_one():
+    grid = SudokuGrid()
+    new_value = 1
+    with pytest.raises(
+        TypeError,
+        match="Value has be of type list and not type: {}".format(type(new_value)),
+    ):
+        grid.set_cell((1, 0), new_value)
+
+    assert grid.get_cell((1, 0)) == [0]
+
+
+def test_set_cell_from_sudoku():
+    solver = SudokuSolver(
+        "123450000000000000000000000000000000000000000000000000000000000000000000000000000"
+    )
+    solver.fill_in_candidates()
+
+    solver.get_sudoku_grid().set_cell((0, 5), [6, 7, 9])
+    assert solver.get_sudoku_grid().get_cell((0, 5)) == [6, 7, 9]
+
+
 def test_set_cell():
     grid = SudokuGrid()
     new_value = [1, 2, 3]
@@ -266,6 +288,14 @@ def test_get_cell():
     assert np.array_equal(
         grid.get_cell((1, 0)), [1, 2, 3]
     ), "The cell should be filled with the new array [1,2,3]"
+
+
+def test_get_cell_length_equals_one():
+    grid = SudokuGrid()
+    new_value = [1]
+    grid.set_cell((1, 0), new_value)
+
+    assert grid.get_cell((1, 0)) == [1]
 
 
 def test_get_cell_out_of_positive_bounds():

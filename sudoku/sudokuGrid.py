@@ -104,7 +104,10 @@ class SudokuGrid:
         row, column = position
         if row < 0 or column < 0:
             raise IndexError("out of bounds for position ({},{})".format(row, column))
-
+        if not isinstance(new_value, list):
+            raise TypeError(
+                "Value has be of type list and not type: {}".format(type(new_value))
+            )
         self.__get_grid()[row][column] = new_value
 
     def __get_grid(self) -> np.ndarray:
