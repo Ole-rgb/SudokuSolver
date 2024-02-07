@@ -1,5 +1,6 @@
 import argparse
-from sudoku.sudokuSolver import SudokuSolver
+from sudoku.sudokuCSP import SudokuCSP
+from sudoku.sudokuGrid import SudokuGrid
 from typing import Union, Tuple, List
 from tkinter import Tk, Canvas, Frame, Button, BOTH, TOP, BOTTOM
 
@@ -17,7 +18,7 @@ class SudokuUI(Frame):
     The Tkinter UI, responsible for drawing the board and accepting user input.
     """
 
-    def __init__(self, parent: Tk, sudoku: SudokuSolver = None):
+    def __init__(self, parent: Tk, sudoku: SudokuCSP = None):
         Frame.__init__(self, parent)
         self.sudoku = sudoku
         self.parent = parent
@@ -65,8 +66,9 @@ class SudokuUI(Frame):
         self.canvas.delete("numbers")
         for row in range(9):
             for column in range(9):
-                original = self.sudoku.get_sudoku_grid().get_cell((row, column))
-                if len(original) == 1 and original != 0:
+                original = self.sudoku.grid.get_cell((row, column))
+
+                if len(original) == 1 and original[0] != 0:
                     x = MARGIN + column * SIDE + SIDE / 2
                     y = MARGIN + row * SIDE + SIDE / 2
                     color = "black"
@@ -83,7 +85,7 @@ class SudokuUI(Frame):
                 answer = (
                     self.solution.get_cell((row, column))
                     if self.solution
-                    else self.sudoku.get_sudoku_grid().get_cell((row, column))
+                    else self.sudoku.grid.get_cell((row, column))
                 )
                 if len(answer) == 1 and answer != 0:
                     x = MARGIN + column * SIDE + SIDE / 2
@@ -96,12 +98,14 @@ class SudokuUI(Frame):
 
     def __solve_sudoku(self):
         if self.solution == None:
-            self.sudoku.solve_soduku()
-            self.solution = self.sudoku.get_sudoku_grid()
+            self.sudoku.fill_in_candidates()
+            self.sudoku.logical_deduction(self.sudoku.grid)
+            print(self.sudoku.solve())
+            self.solution = self.sudoku.grid
         self.__draw_new_filled_cells()
 
     def __reset(self):
-        self.sudoku = SudokuSolver(args.sudoku)
+        self.sudoku = SudokuCSP(SudokuGrid(args.sudoku))
         self.filled_cells = []
         self.__draw_puzzle()
 
@@ -111,6 +115,6 @@ if __name__ == "__main__":
     root = Tk()
     SudokuUI(
         root,
-        SudokuSolver(args.sudoku),
+        SudokuCSP(SudokuGrid(args.sudoku)),
     )
     root.mainloop()

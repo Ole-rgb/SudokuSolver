@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Union, Tuple, List, Set
-from sudoku.sudokuGrid import (
+from enum import Enum
+from solver_v2.sudokuGrid import (
     SudokuGrid,
     ROWS,
     COLUMNS,
@@ -10,7 +11,12 @@ from sudoku.sudokuGrid import (
     all_houses,
     all_rows,
 )
-from sudoku.backtracking import Heuristics
+
+
+class Heuristics(Enum):
+    LEAST_VALUES = 1
+    LEAST_CONSTRAINT_VARIABLE = 2
+
 
 DEBUG = False
 

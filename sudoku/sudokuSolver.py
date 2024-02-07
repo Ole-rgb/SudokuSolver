@@ -340,7 +340,6 @@ class SudokuCSPAdapter:
 
     @staticmethod
     def __cells_to_variables(sudoku_grid: SudokuGrid) -> List[Variable[int]]:
-        # TODO implement np.ndarray in backtracking
         variables: List[Variable[int]] = []
         for row in all_rows:
             for cell_position in row:
