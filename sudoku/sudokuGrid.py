@@ -1,8 +1,28 @@
 from typing import Union, Tuple
 import numpy as np
+from typing import Set
 
 ROWS, COLUMNS = (9, 9)
 DIGITS = 10
+
+# same for rows
+all_rows = [[(row, column) for column in range(COLUMNS)] for row in range(ROWS)]
+
+# return columns' lists of cells
+all_columns = [[(row, column) for row in range(ROWS)] for column in range(COLUMNS)]
+
+# same for blocks
+# this list comprehension is unreadable, but quite cool!
+all_blocks = [
+    [
+        ((row // 3) * 3 + column // 3, (row % 3) * 3 + column % 3)
+        for column in range(COLUMNS)
+    ]
+    for row in range(ROWS)
+]
+
+# combine three
+all_houses = all_columns + all_rows + all_blocks
 
 
 class InvalidSudokuInput(Exception):
@@ -92,6 +112,27 @@ class SudokuGrid:
             )
 
         return grid
+
+    def valid_board(self) -> bool:
+        return (
+            self.__valid_houses(all_rows)
+            and self.__valid_houses(all_columns)
+            and self.__valid_houses(all_blocks)
+        )
+
+    def __valid_houses(self, houses):
+        for house in houses:
+            seen: Set[int] = set()
+            for cell in house:
+                cell_data = self.get_cell(cell)
+                if len(cell_data) != 1:
+                    continue
+
+                if cell_data[0] in seen:
+                    return False
+
+                seen.add(cell_data[0])
+        return True
 
     def get_cell(self, position: Tuple[int, int]) -> []:
         row, column = position
